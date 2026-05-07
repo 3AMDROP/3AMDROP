@@ -1,3 +1,4 @@
+const { requireAuthenticatedUser } = require("../_lib/auth");
 const { createAdminSupabaseClient } = require("../_lib/clients");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
 const { getBaseUrl } = require("../_lib/url");
@@ -15,15 +16,16 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { cart = [], customer = {}, shipping = {}, user = null } = await readJsonBody(req);
+    const authenticatedUser = await requireAuthenticatedUser(req);
+    const { cart = [], customer = {}, shipping = {} } = await readJsonBody(req);
 
     if (!Array.isArray(cart) || !cart.length) {
       sendJson(res, 400, { error: "Your cart is empty." });
       return;
     }
 
-    const orderName = String(customer.name || "").trim();
-    const orderEmail = String(customer.email || "").trim().toLowerCase();
+    const orderName = String(customer.name || authenticatedUser.user_metadata?.full_name || "").trim();
+    const orderEmail = String(authenticatedUser.email || "").trim().toLowerCase();
 
     if (!orderName || !orderEmail) {
       sendJson(res, 400, { error: "Customer name and email are required." });
@@ -56,7 +58,7 @@ module.exports = async (req, res) => {
     const { data: orderRecord, error: orderError } = await supabase
       .from("orders")
       .insert({
-        user_id: user?.id || null,
+        user_id: authenticatedUser.id,
         customer_email: orderEmail,
         customer_name: orderName,
         customer_phone: customerPhone,
@@ -146,6 +148,9 @@ module.exports = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    sendJson(res, 500, { error: error.message || "Could not create checkout session." });
+    const statusCode = error.message?.toLowerCase().includes("token") || error.message?.toLowerCase().includes("session")
+      ? 401
+      : 500;
+    sendJson(res, statusCode, { error: error.message || "Could not create checkout session." });
   }
 };

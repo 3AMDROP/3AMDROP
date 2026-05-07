@@ -1,3 +1,4 @@
+const { requireAuthenticatedUser } = require("../_lib/auth");
 const { createAdminSupabaseClient } = require("../_lib/clients");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
 
@@ -7,8 +8,8 @@ module.exports = async (req, res) => {
   }
 
   try {
+    const authenticatedUser = await requireAuthenticatedUser(req);
     const {
-      user = null,
       cart = [],
       delivery = {},
       payment = {}
@@ -23,7 +24,7 @@ module.exports = async (req, res) => {
     const customerPhone = String(delivery.phone || "").trim();
     const shippingLocation = String(delivery.location || "").trim();
     const shippingAddress = String(delivery.address || "").trim();
-    const customerEmail = String(user?.email || "").trim().toLowerCase();
+    const customerEmail = String(authenticatedUser.email || "").trim().toLowerCase();
     const paymentMethod = String(payment.method || "").trim();
     const paymentStatus = String(payment.status || "pending").trim();
     const provider = payment.provider ? String(payment.provider).trim() : null;
@@ -47,7 +48,7 @@ module.exports = async (req, res) => {
     const { data, error } = await supabase
       .from("orders")
       .insert({
-        user_id: user?.id || null,
+        user_id: authenticatedUser.id,
         customer_email: customerEmail,
         customer_name: customerName,
         customer_phone: customerPhone,
@@ -74,6 +75,9 @@ module.exports = async (req, res) => {
     sendJson(res, 201, { orderId: data.id });
   } catch (error) {
     console.error(error);
-    sendJson(res, 500, { error: error.message || "Order creation failed." });
+    const statusCode = error.message?.toLowerCase().includes("token") || error.message?.toLowerCase().includes("session")
+      ? 401
+      : 500;
+    sendJson(res, statusCode, { error: error.message || "Order creation failed." });
   }
 };

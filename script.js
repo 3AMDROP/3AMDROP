@@ -84,6 +84,11 @@ const clearAuthState = () => {
   localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
 };
 
+const clearCheckoutState = () => {
+  localStorage.removeItem(CART_STORAGE_KEY);
+  localStorage.removeItem(DELIVERY_STORAGE_KEY);
+};
+
 const persistDemoAuthState = (user) => {
   saveStoredJson(DEMO_ACCOUNT_STORAGE_KEY, user);
   persistAuthState({
@@ -100,11 +105,18 @@ const clearDemoAuthState = () => {
 };
 
 const apiRequest = async (path, payload = {}) => {
+  const session = getAuthSession();
+  const headers = {
+    "Content-Type": "application/json"
+  };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
   const response = await fetch(path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers,
     body: JSON.stringify(payload)
   });
 
@@ -368,11 +380,20 @@ const handleCheckoutReturnState = async () => {
   const params = new URLSearchParams(window.location.search);
   const checkoutState = params.get("checkout");
   const tapId = params.get("tap_id");
+  const clearCheckoutQuery = () => {
+    const nextUrl = `${window.location.pathname}${window.location.hash || ""}`;
+    window.history.replaceState({}, "", nextUrl);
+  };
 
   if (checkoutState === "success") {
+    clearCheckoutState();
+    renderCart();
+    renderDeliveryState();
     checkoutStatus.textContent = "Payment completed successfully. Your order is ready for fulfillment.";
+    clearCheckoutQuery();
   } else if (checkoutState === "cancelled") {
     checkoutStatus.textContent = "Checkout was cancelled. You can review your cart and try again.";
+    clearCheckoutQuery();
   } else if (checkoutState === "pending" && tapId && !isFilePreview) {
     checkoutStatus.textContent = "Verifying your payment...";
 
@@ -381,12 +402,20 @@ const handleCheckoutReturnState = async () => {
         tap_id: tapId
       });
 
+      if (data.success) {
+        clearCheckoutState();
+        renderCart();
+        renderDeliveryState();
+      }
+
       checkoutStatus.textContent = data.success
         ? `Payment confirmed. Order ${data.orderId} is now marked as paid.`
         : `Payment returned with status ${data.status}. Please contact support if you were charged.`;
     } catch (error) {
       checkoutStatus.textContent = error.message;
     }
+
+    clearCheckoutQuery();
   }
 };
 
@@ -588,6 +617,12 @@ orderForm?.addEventListener("submit", (event) => {
   };
 
   saveStoredJson(DELIVERY_STORAGE_KEY, delivery);
+  selectedSize = delivery.size || selectedSize;
+  sizeOptions.forEach((button) => {
+    const isActive = button.dataset.size === selectedSize;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
   renderDeliveryState();
   orderStatus.textContent = `Delivery details saved for ${delivery.location || "Bahrain"}. Continue to payment to place the order.`;
   orderForm.reset();
@@ -622,7 +657,7 @@ checkoutForm?.addEventListener("submit", async (event) => {
 
   const formData = new FormData(checkoutForm);
   const checkoutName = String(formData.get("checkoutName") || account.fullName || "").trim();
-  const checkoutPhone = String(formData.get("checkoutPhone") || "").trim();
+  const checkoutPhone = String(formData.get("checkoutPhone") || delivery.phone || "").trim();
 
   if (selectedPaymentMethod === "cod") {
     checkoutStatus.textContent = "Creating your order...";
@@ -643,6 +678,9 @@ checkoutForm?.addEventListener("submit", async (event) => {
       });
 
       checkoutStatus.textContent = `Cash on delivery selected. Order ${data.orderId} was created successfully. Total due on delivery: ${checkoutTotal.textContent}.`;
+      clearCheckoutState();
+      renderCart();
+      renderDeliveryState();
       checkoutForm.reset();
       setPaymentMethod("cod");
       return;
