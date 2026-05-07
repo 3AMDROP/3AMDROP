@@ -1,0 +1,11 @@
+{
+  "name": "3am-worldwide-store",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "resend": "^4.0.0"
+  }
+}
