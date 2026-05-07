@@ -48,6 +48,12 @@ ADMIN_EMAILS=
 
 Run the SQL in [db/schema.sql](/Users/3limuradi/Documents/New%20project/db/schema.sql) inside your Supabase SQL editor before testing live checkout.
 
+That SQL now also:
+
+- creates the `orders` table
+- enables Row Level Security on `public.orders`
+- allows authenticated users to read only their own orders
+
 ## Payment Provider Note
 
 This project now uses Tap's hosted redirect flow for card and Benefit payments in Bahrain.
@@ -80,6 +86,7 @@ Tap's docs show:
 - Authenticated order list and order detail endpoints
 - Admin order list and order status update endpoints
 - Tap webhook hash validation for payment confirmation
+- RLS-enabled orders table for safe user order access
 
 ## Still Needed For Full Commerce Production
 

@@ -25,3 +25,15 @@ create table if not exists public.orders (
 
 create index if not exists orders_customer_email_idx on public.orders (customer_email);
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
+
+alter table public.orders enable row level security;
+
+grant usage on schema public to anon, authenticated;
+grant select on table public.orders to authenticated;
+
+drop policy if exists "Users can view their own orders" on public.orders;
+create policy "Users can view their own orders"
+on public.orders
+for select
+to authenticated
+using (auth.uid() = user_id);
