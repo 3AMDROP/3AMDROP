@@ -1483,11 +1483,38 @@ select {
   }
 
   .topbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
     padding: 12px 14px 12px 18px;
+    border-radius: 34px;
   }
 
   .topbar-right {
+    width: 100%;
     margin-left: auto;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .account-actions {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .account-pill,
+  .cart-link {
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 0.82rem;
+  }
+
+  .cart-count {
+    min-width: 22px;
+    height: 22px;
+    margin-left: 8px;
   }
 
   .menu-toggle {
@@ -1545,6 +1572,15 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .product-actions,
+  .price-row,
+  .price-now-row,
+  .admin-order-head,
+  .admin-order-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .visual-card {
     position: static;
     width: 100%;
@@ -1577,6 +1613,25 @@ select {
     height: 52px;
   }
 
+  .topbar {
+    padding: 12px;
+  }
+
+  .topbar-right {
+    align-items: flex-start;
+  }
+
+  .account-actions {
+    width: calc(100% - 60px);
+    justify-content: flex-start;
+  }
+
+  .account-pill {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .hero h1 {
     font-size: clamp(2.5rem, 13vw, 4rem);
   }
@@ -1590,5 +1645,28 @@ select {
   .footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hero-copy,
+  .hero-visual,
+  .product-details,
+  .cart-panel,
+  .account-panel,
+  .checkout-panel,
+  .admin-panel,
+  .contact-copy,
+  .contact-form,
+  .vision-panel,
+  .quote-panel,
+  .story-card,
+  .drop-card,
+  .order-panel {
+    padding: 20px;
+  }
+
+  .order-panel,
+  .order-copy,
+  .order-form {
+    gap: 16px;
   }
 }
