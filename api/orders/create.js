@@ -1,8 +1,6 @@
-const { sendNewOrderEmail } = require("../_lib/email");
 const { requireAuthenticatedUser } = require("../_lib/auth");
 const { createAdminSupabaseClient } = require("../_lib/clients");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
-const { sanitizeOrder } = require("../_lib/orders");
 
 module.exports = async (req, res) => {
   if (!allowMethod(req, res, "POST")) {
@@ -58,7 +56,7 @@ module.exports = async (req, res) => {
         shipping_address: shippingAddress,
         payment_method: paymentMethod,
         payment_status: paymentStatus,
-        order_status: paymentMethod === "cod" ? "confirmed" : "pending_payment",
+        order_status: paymentMethod === "cod" ? "pending_confirmation" : "pending_payment",
         provider,
         provider_reference: providerReference,
         subtotal_bhd: subtotal.toFixed(3),
@@ -72,31 +70,6 @@ module.exports = async (req, res) => {
     if (error) {
       sendJson(res, 500, { error: error.message || "Could not create order record." });
       return;
-    }
-
-    const order = sanitizeOrder({
-      id: data.id,
-      customer_email: customerEmail,
-      customer_name: customerName,
-      customer_phone: customerPhone,
-      shipping_location: shippingLocation,
-      shipping_address: shippingAddress,
-      payment_method: paymentMethod,
-      payment_status: paymentStatus,
-      order_status: paymentMethod === "cod" ? "confirmed" : "pending_payment",
-      provider,
-      provider_reference: providerReference,
-      subtotal_bhd: subtotal.toFixed(3),
-      shipping_bhd: shipping.toFixed(3),
-      total_bhd: total.toFixed(3),
-      currency: "BHD",
-      cart_snapshot: cart
-    });
-
-    try {
-      await sendNewOrderEmail({ order });
-    } catch (emailError) {
-      console.error("Order notification email failed:", emailError);
     }
 
     sendJson(res, 201, { orderId: data.id });

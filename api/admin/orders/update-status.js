@@ -1,5 +1,6 @@
 const { createAdminSupabaseClient } = require("../../_lib/clients");
 const { requireAdminUser } = require("../../_lib/auth");
+const { sendCustomerReceiptEmail, sendNewOrderEmail } = require("../../_lib/email");
 const { allowMethod, readJsonBody, sendJson } = require("../../_lib/http");
 const { sanitizeOrder } = require("../../_lib/orders");
 
@@ -34,6 +35,12 @@ module.exports = async (req, res) => {
     }
 
     const supabase = createAdminSupabaseClient();
+    const { data: existingOrder } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+
     const { data, error } = await supabase
       .from("orders")
       .update(updates)
@@ -44,6 +51,25 @@ module.exports = async (req, res) => {
     if (error || !data) {
       sendJson(res, 404, { error: error?.message || "Order not found." });
       return;
+    }
+
+    const wasConfirmed = existingOrder && ["confirmed", "paid"].includes(String(existingOrder.order_status || "").toLowerCase());
+    const isConfirmed = ["confirmed", "paid"].includes(String(data.order_status || "").toLowerCase());
+
+    if (!wasConfirmed && isConfirmed) {
+      const sanitizedOrder = sanitizeOrder(data);
+
+      try {
+        await sendNewOrderEmail({ order: sanitizedOrder });
+      } catch (emailError) {
+        console.error("Order notification email failed:", emailError);
+      }
+
+      try {
+        await sendCustomerReceiptEmail({ order: sanitizedOrder });
+      } catch (emailError) {
+        console.error("Customer receipt email failed:", emailError);
+      }
     }
 
     sendJson(res, 200, {

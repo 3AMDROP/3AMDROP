@@ -880,7 +880,7 @@ checkoutForm?.addEventListener("submit", async (event) => {
         }
       });
 
-      checkoutStatus.textContent = `Cash on delivery selected. Order ${data.orderId} was created successfully. Total due on delivery: ${checkoutTotal.textContent}.`;
+      checkoutStatus.textContent = `Cash on delivery selected. Order ${data.orderId} was created and is waiting for confirmation. Total due on delivery: ${checkoutTotal.textContent}.`;
       clearCheckoutState();
       renderCart();
       renderDeliveryState();

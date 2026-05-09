@@ -1,12 +1,12 @@
 # Production Setup
 
-This project is wired for a production auth + welcome email flow using Vercel, Supabase Auth, and Resend.
+This project is wired for a production auth, email verification, welcome email, and receipt flow using Vercel, Supabase Auth, Resend, and Stripe.
 
 ## What You Need
 
 1. A Supabase project
 2. A Resend account
-3. A verified sending domain in Resend such as `hello@yourbrand.com`
+3. A verified sending domain in Resend such as `hello@yourbrand.com` when you are ready for branded sending
 4. A Vercel project for deployment
 5. A Stripe account in a supported country such as the UAE
 
@@ -31,13 +31,15 @@ ADMIN_EMAILS=
 ## Supabase Notes
 
 - Enable Email/Password auth in Supabase.
-- The register endpoint creates users server-side with `email_confirm: true` so customers can sign in immediately after registering.
-- If you want mandatory email confirmation later, switch that behavior in `api/auth/register.js`.
+- Enable email confirmation in Supabase Auth.
+- The register endpoint now creates accounts in a verification-required state.
+- The website expects a 6-digit email verification code as the main flow, and also supports the link fallback if Supabase still sends a `token_hash` link.
 
 ## Resend Notes
 
 - Verify your sending domain before going live.
 - `RESEND_FROM_EMAIL` should be something like `3AM Worldwide <hello@yourdomain.com>`.
+- If `RESEND_API_KEY` or `RESEND_FROM_EMAIL` is missing, the auth and order flows still work, but welcome/receipt/admin emails will be skipped gracefully.
 
 ## Deploy
 
@@ -79,20 +81,21 @@ Stripe's docs show:
 ## What Is Production-Ready Now
 
 - Real signup via Supabase Auth
+- Email verification step before login
 - Real login via Supabase Auth
-- Authenticated current-user endpoint
 - Persistent session restore through the backend
-- Welcome email sending through Resend
+- Welcome email sending through Resend after verification
 - Hosted card checkout with Stripe
 - Real order records stored in Supabase
 - Authenticated order list and order detail endpoints
 - Admin order list and order status update endpoints
 - Stripe session verification on checkout return
 - Stripe webhook signature verification for checkout completion events
+- Customer receipt emails after paid/confirmed orders
+- Admin order notification emails after paid/confirmed orders
 - RLS-enabled orders table for safe user order access
 
 ## Still Needed For Full Commerce Production
 
 - Connect Stripe webhook endpoint to `/api/checkout/verify-session`
-- Admin dashboard / fulfillment flow
 - Frontend order-history page wired to the new order APIs

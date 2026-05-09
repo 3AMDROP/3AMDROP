@@ -1,7 +1,7 @@
 const Stripe = require("stripe");
 
 const { createAdminSupabaseClient } = require("../_lib/clients");
-const { sendNewOrderEmail } = require("../_lib/email");
+const { sendCustomerReceiptEmail, sendNewOrderEmail } = require("../_lib/email");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
 const { sanitizeOrder } = require("../_lib/orders");
 
@@ -70,19 +70,25 @@ async function updateOrderFromSession(session) {
   }
 
   if (isPaid && existingOrder && existingOrder.payment_status !== "paid") {
+    const sanitizedOrder = sanitizeOrder({
+      ...existingOrder,
+      payment_status: paymentStatus,
+      order_status: "paid",
+      provider: "stripe",
+      provider_reference: session.id,
+      updated_at: new Date().toISOString()
+    });
+
     try {
-      await sendNewOrderEmail({
-        order: sanitizeOrder({
-          ...existingOrder,
-          payment_status: paymentStatus,
-          order_status: "paid",
-          provider: "stripe",
-          provider_reference: session.id,
-          updated_at: new Date().toISOString()
-        })
-      });
+      await sendNewOrderEmail({ order: sanitizedOrder });
     } catch (emailError) {
       console.error("Order notification email failed:", emailError);
+    }
+
+    try {
+      await sendCustomerReceiptEmail({ order: sanitizedOrder });
+    } catch (emailError) {
+      console.error("Customer receipt email failed:", emailError);
     }
   }
 
