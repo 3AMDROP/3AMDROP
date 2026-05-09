@@ -31,6 +31,9 @@ const accountPill = document.getElementById("account-pill");
 const accountSession = document.getElementById("account-session");
 const accountSessionName = document.getElementById("account-session-name");
 const logoutButton = document.getElementById("logout-button");
+const adminPanel = document.getElementById("admin-panel");
+const adminMessage = document.getElementById("admin-message");
+const adminOrders = document.getElementById("admin-orders");
 const zoomableImages = document.querySelectorAll(".zoomable-image");
 const lightbox = document.getElementById("image-lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
@@ -60,6 +63,7 @@ let selectedSize = "Small";
 let lightboxScale = 1;
 let selectedPaymentMethod = "cod";
 let authReady = false;
+let isAdminUser = false;
 
 const readStoredJson = (key, fallback) => {
   try {
@@ -143,6 +147,28 @@ const apiRequest = async (path, payload = {}) => {
   return data;
 };
 
+const apiGetRequest = async (path) => {
+  const session = getAuthSession();
+  const headers = {};
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
+  const response = await fetch(path, {
+    method: "GET",
+    headers
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed.");
+  }
+
+  return data;
+};
+
 const setAuthView = (target) => {
   accountTabs.forEach((tab) => {
     const isActive = tab.dataset.authTarget === target;
@@ -182,6 +208,8 @@ const renderAccountState = () => {
       : isFilePreview
       ? "Local demo auth is active in file preview mode. Register here to test sign in before deployment."
       : "Guests can browse, but adding LEGENDS TEE to the cart requires an account.";
+    isAdminUser = false;
+    adminPanel.hidden = true;
     authReady = true;
     return;
   }
@@ -198,6 +226,64 @@ const renderAccountState = () => {
   accountSessionName.textContent = account.fullName ? `${account.fullName} (${account.email})` : account.email;
   accountMessage.textContent = `Logged in as ${account.fullName || account.email}. You can now add products to cart and prepare your Bahrain order.`;
   authReady = true;
+};
+
+const renderAdminOrders = (orders = []) => {
+  adminOrders.innerHTML = "";
+
+  if (!orders.length) {
+    adminMessage.textContent = "No orders yet. New ones will appear here as they come in.";
+    return;
+  }
+
+  adminMessage.textContent = `Showing ${orders.length} recent order${orders.length === 1 ? "" : "s"}.`;
+
+  orders.forEach((order) => {
+    const card = document.createElement("article");
+    card.className = "admin-order-card";
+    const items = Array.isArray(order.cart)
+      ? order.cart.map((item) => `${item.name} (${item.size}) x${item.quantity}`).join(", ")
+      : "";
+
+    card.innerHTML = `
+      <div class="admin-order-head">
+        <strong>Order ${order.id}</strong>
+        <strong>${Number(order.totalBhd).toFixed(1)} BD</strong>
+      </div>
+      <div class="admin-order-meta">
+        <span>${order.customerName}</span>
+        <span>${order.customerPhone}</span>
+        <span>${order.paymentMethod} / ${order.paymentStatus}</span>
+      </div>
+      <div class="admin-order-items">${items}</div>
+      <div class="admin-order-meta">
+        <span>${order.shippingLocation}</span>
+        <span>${order.shippingAddress}</span>
+      </div>
+    `;
+
+    adminOrders.appendChild(card);
+  });
+};
+
+const loadAdminOrders = async () => {
+  const account = getAccount();
+
+  if (!account || isFilePreview) {
+    isAdminUser = false;
+    adminPanel.hidden = true;
+    return;
+  }
+
+  try {
+    const data = await apiGetRequest("/api/admin/orders/list");
+    isAdminUser = true;
+    adminPanel.hidden = false;
+    renderAdminOrders(data.orders || []);
+  } catch {
+    isAdminUser = false;
+    adminPanel.hidden = true;
+  }
 };
 
 const renderCheckoutTotals = () => {
@@ -634,6 +720,7 @@ loginForm?.addEventListener("submit", async (event) => {
     clearPendingVerificationEmail();
     loginForm.reset();
     renderAccountState();
+    await loadAdminOrders();
     accountMessage.textContent = `Logged in as ${data.user.fullName || data.user.email}.`;
   } catch (error) {
     accountMessage.textContent = error.message;
@@ -664,6 +751,7 @@ verifyForm?.addEventListener("submit", async (event) => {
     clearPendingVerificationEmail();
     verifyForm.reset();
     renderAccountState();
+    await loadAdminOrders();
     accountMessage.textContent = data.welcomeEmailSent
       ? `Email confirmed. Welcome ${data.user.fullName || data.user.email}.`
       : `Email confirmed. Welcome ${data.user.fullName || data.user.email}. Your welcome email could not be sent yet.`;
@@ -696,6 +784,8 @@ logoutButton?.addEventListener("click", async () => {
 
   clearAuthState();
   clearPendingVerificationEmail();
+  isAdminUser = false;
+  adminPanel.hidden = true;
   setAuthView("register");
   renderAccountState();
   accountMessage.textContent = "You have been logged out.";
@@ -849,10 +939,15 @@ const revealObserver = new IntersectionObserver(
 
 revealItems.forEach((item) => revealObserver.observe(item));
 
-setAuthView("register");
-setPaymentMethod("cod");
-renderCart();
-renderDeliveryState();
-handleEmailVerificationReturn();
-handleCheckoutReturnState();
-restoreAuthSession();
+const initializeApp = async () => {
+  setAuthView("register");
+  setPaymentMethod("cod");
+  renderCart();
+  renderDeliveryState();
+  await handleEmailVerificationReturn();
+  await handleCheckoutReturnState();
+  await restoreAuthSession();
+  await loadAdminOrders();
+};
+
+initializeApp();

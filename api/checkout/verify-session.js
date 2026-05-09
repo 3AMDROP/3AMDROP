@@ -1,7 +1,9 @@
 const Stripe = require("stripe");
 
 const { createAdminSupabaseClient } = require("../_lib/clients");
+const { sendNewOrderEmail } = require("../_lib/email");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
+const { sanitizeOrder } = require("../_lib/orders");
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -46,6 +48,12 @@ async function updateOrderFromSession(session) {
   const isPaid = paymentStatus === "paid";
 
   const supabase = createAdminSupabaseClient();
+  const { data: existingOrder } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .single();
+
   const { error } = await supabase
     .from("orders")
     .update({
@@ -59,6 +67,23 @@ async function updateOrderFromSession(session) {
 
   if (error) {
     throw new Error(error.message || "Could not update order payment status.");
+  }
+
+  if (isPaid && existingOrder && existingOrder.payment_status !== "paid") {
+    try {
+      await sendNewOrderEmail({
+        order: sanitizeOrder({
+          ...existingOrder,
+          payment_status: paymentStatus,
+          order_status: "paid",
+          provider: "stripe",
+          provider_reference: session.id,
+          updated_at: new Date().toISOString()
+        })
+      });
+    } catch (emailError) {
+      console.error("Order notification email failed:", emailError);
+    }
   }
 
   return {

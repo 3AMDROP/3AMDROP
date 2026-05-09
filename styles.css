@@ -1013,6 +1013,42 @@ select {
   margin-top: 24px;
 }
 
+.admin-panel {
+  margin-top: 24px;
+}
+
+.admin-orders {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-order-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-order-head,
+.admin-order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.admin-order-card strong {
+  font-size: 1rem;
+}
+
+.admin-order-meta,
+.admin-order-items {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .checkout-note {
   color: var(--muted);
   line-height: 1.75;
