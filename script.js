@@ -20,6 +20,9 @@ const accountTabsWrap = document.querySelector(".account-tabs");
 const accountForms = document.querySelectorAll(".account-form");
 const registerForm = document.getElementById("register-form");
 const loginForm = document.getElementById("login-form");
+const verifyForm = document.getElementById("verify-form");
+const verificationPanel = document.getElementById("verification-panel");
+const verificationCopy = document.getElementById("verification-copy");
 const accountMessage = document.getElementById("account-message");
 const accountHeading = document.getElementById("account-heading");
 const headerLogin = document.getElementById("header-login");
@@ -48,6 +51,7 @@ const AUTH_USER_STORAGE_KEY = "threeam-auth-user";
 const AUTH_SESSION_STORAGE_KEY = "threeam-auth-session";
 const DEMO_USERS_STORAGE_KEY = "threeam-demo-users";
 const DEMO_ACCOUNT_STORAGE_KEY = "threeam-demo-account";
+const PENDING_VERIFICATION_EMAIL_STORAGE_KEY = "threeam-pending-verification-email";
 const DELIVERY_STORAGE_KEY = "threeam-delivery";
 const PRODUCT_PRICE = 7.5;
 const SHIPPING_PRICE = 2.5;
@@ -74,6 +78,7 @@ const getAuthSession = () => readStoredJson(AUTH_SESSION_STORAGE_KEY, null);
 const getCart = () => readStoredJson(CART_STORAGE_KEY, []);
 const getDemoUsers = () => readStoredJson(DEMO_USERS_STORAGE_KEY, []);
 const getDelivery = () => readStoredJson(DELIVERY_STORAGE_KEY, null);
+const getPendingVerificationEmail = () => localStorage.getItem(PENDING_VERIFICATION_EMAIL_STORAGE_KEY);
 
 const persistAuthState = ({ user, session }) => {
   saveStoredJson(AUTH_USER_STORAGE_KEY, user);
@@ -88,6 +93,14 @@ const clearAuthState = () => {
 const clearCheckoutState = () => {
   localStorage.removeItem(CART_STORAGE_KEY);
   localStorage.removeItem(DELIVERY_STORAGE_KEY);
+};
+
+const setPendingVerificationEmail = (email) => {
+  localStorage.setItem(PENDING_VERIFICATION_EMAIL_STORAGE_KEY, email);
+};
+
+const clearPendingVerificationEmail = () => {
+  localStorage.removeItem(PENDING_VERIFICATION_EMAIL_STORAGE_KEY);
 };
 
 const persistDemoAuthState = (user) => {
@@ -144,18 +157,29 @@ const setAuthView = (target) => {
 
 const renderAccountState = () => {
   const account = getAccount();
+  const pendingVerificationEmail = getPendingVerificationEmail();
   document.body.classList.toggle("is-authenticated", Boolean(account));
 
   if (!account) {
-    accountHeading.textContent = "Register or log in before adding products to cart.";
+    const isVerifying = Boolean(pendingVerificationEmail);
+
+    accountHeading.textContent = isVerifying
+      ? "Confirm your email to activate your account."
+      : "Register or log in before adding products to cart.";
     accountPill.textContent = "Guest";
     accountSession.hidden = true;
     headerLogin.hidden = false;
     headerRegister.hidden = false;
-    accountTabsWrap.hidden = false;
-    registerForm.hidden = false;
-    loginForm.hidden = false;
-    accountMessage.textContent = isFilePreview
+    verificationPanel.hidden = !isVerifying;
+    accountTabsWrap.hidden = isVerifying;
+    registerForm.hidden = isVerifying ? true : false;
+    loginForm.hidden = isVerifying ? true : false;
+    verificationCopy.textContent = pendingVerificationEmail
+      ? `We sent a verification code to ${pendingVerificationEmail}. Enter it below to confirm your email and continue.`
+      : "Enter the code sent to your email address to activate your account.";
+    accountMessage.textContent = isVerifying
+      ? "Your account is almost ready. Confirm your email to finish signing in."
+      : isFilePreview
       ? "Local demo auth is active in file preview mode. Register here to test sign in before deployment."
       : "Guests can browse, but adding LEGENDS TEE to the cart requires an account.";
     authReady = true;
@@ -167,6 +191,7 @@ const renderAccountState = () => {
   accountSession.hidden = false;
   headerLogin.hidden = true;
   headerRegister.hidden = true;
+  verificationPanel.hidden = true;
   accountTabsWrap.hidden = true;
   registerForm.hidden = true;
   loginForm.hidden = true;
@@ -425,6 +450,39 @@ const handleCheckoutReturnState = async () => {
   }
 };
 
+const handleEmailVerificationReturn = async () => {
+  if (isFilePreview) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const tokenHash = params.get("token_hash");
+  const type = params.get("type");
+
+  if (!tokenHash) {
+    return;
+  }
+
+  accountMessage.textContent = "Confirming your email...";
+
+  try {
+    const data = await apiRequest("/api/auth/verify-email", {
+      tokenHash,
+      type
+    });
+
+    persistAuthState(data);
+    clearPendingVerificationEmail();
+    renderAccountState();
+    accountMessage.textContent = data.welcomeEmailSent
+      ? `Email confirmed. Welcome ${data.user.fullName || data.user.email}.`
+      : `Email confirmed. Welcome ${data.user.fullName || data.user.email}. Your welcome email could not be sent yet.`;
+    window.history.replaceState({}, "", `${window.location.pathname}${window.location.hash || ""}`);
+  } catch (error) {
+    accountMessage.textContent = error.message;
+  }
+};
+
 if (menuToggle && nav) {
   menuToggle.addEventListener("click", () => {
     const expanded = menuToggle.getAttribute("aria-expanded") === "true";
@@ -525,12 +583,20 @@ registerForm?.addEventListener("submit", async (event) => {
       password
     });
 
-    persistAuthState(data);
+    if (data.session && data.user && !data.requiresEmailVerification) {
+      persistAuthState(data);
+      clearPendingVerificationEmail();
+      registerForm.reset();
+      renderAccountState();
+      accountMessage.textContent = data.message || `Welcome ${data.user.fullName || data.user.email}.`;
+      return;
+    }
+
+    clearAuthState();
+    setPendingVerificationEmail(data.email || email);
     registerForm.reset();
     renderAccountState();
-    accountMessage.textContent = data.welcomeEmailSent
-      ? `Welcome ${data.user.fullName || data.user.email}. Your account is live and a welcome email was sent.`
-      : `Welcome ${data.user.fullName || data.user.email}. Your account is live, but the welcome email could not be sent yet.`;
+    accountMessage.textContent = data.message || "Check your email for the verification code.";
   } catch (error) {
     accountMessage.textContent = error.message;
 
@@ -552,6 +618,7 @@ loginForm?.addEventListener("submit", async (event) => {
   try {
     if (isFilePreview) {
       const user = loginWithLocalDemoAuth({ email, password });
+      clearPendingVerificationEmail();
       loginForm.reset();
       renderAccountState();
       accountMessage.textContent = `Logged in as ${user.fullName || user.email}.`;
@@ -564,6 +631,7 @@ loginForm?.addEventListener("submit", async (event) => {
     });
 
     persistAuthState(data);
+    clearPendingVerificationEmail();
     loginForm.reset();
     renderAccountState();
     accountMessage.textContent = `Logged in as ${data.user.fullName || data.user.email}.`;
@@ -572,9 +640,42 @@ loginForm?.addEventListener("submit", async (event) => {
   }
 });
 
+verifyForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const pendingEmail = getPendingVerificationEmail();
+  const formData = new FormData(verifyForm);
+  const token = String(formData.get("token") || "").trim();
+
+  if (!pendingEmail) {
+    accountMessage.textContent = "Start with registration first so we know which email to confirm.";
+    return;
+  }
+
+  accountMessage.textContent = "Confirming your email...";
+
+  try {
+    const data = await apiRequest("/api/auth/verify-email", {
+      email: pendingEmail,
+      token
+    });
+
+    persistAuthState(data);
+    clearPendingVerificationEmail();
+    verifyForm.reset();
+    renderAccountState();
+    accountMessage.textContent = data.welcomeEmailSent
+      ? `Email confirmed. Welcome ${data.user.fullName || data.user.email}.`
+      : `Email confirmed. Welcome ${data.user.fullName || data.user.email}. Your welcome email could not be sent yet.`;
+  } catch (error) {
+    accountMessage.textContent = error.message;
+  }
+});
+
 logoutButton?.addEventListener("click", async () => {
   if (isFilePreview) {
     clearDemoAuthState();
+    clearPendingVerificationEmail();
     setAuthView("register");
     renderAccountState();
     accountMessage.textContent = "You have been logged out from preview mode.";
@@ -594,6 +695,7 @@ logoutButton?.addEventListener("click", async () => {
   }
 
   clearAuthState();
+  clearPendingVerificationEmail();
   setAuthView("register");
   renderAccountState();
   accountMessage.textContent = "You have been logged out.";
@@ -751,5 +853,6 @@ setAuthView("register");
 setPaymentMethod("cod");
 renderCart();
 renderDeliveryState();
+handleEmailVerificationReturn();
 handleCheckoutReturnState();
 restoreAuthSession();

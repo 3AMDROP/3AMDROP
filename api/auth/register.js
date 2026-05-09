@@ -1,5 +1,4 @@
-const { createAdminSupabaseClient, createPublicSupabaseClient } = require("../_lib/clients");
-const { sendWelcomeEmail } = require("../_lib/email");
+const { createPublicSupabaseClient } = require("../_lib/clients");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
 const { sanitizeSession, sanitizeUser } = require("../_lib/auth");
 
@@ -23,53 +22,33 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const adminClient = createAdminSupabaseClient();
-    const { error: createError } = await adminClient.auth.admin.createUser({
+    const publicClient = createPublicSupabaseClient();
+    const { data, error: signUpError } = await publicClient.auth.signUp({
       email: normalizedEmail,
       password,
-      email_confirm: true,
-      user_metadata: {
-        full_name: normalizedName
+      options: {
+        data: {
+          full_name: normalizedName
+        }
       }
     });
 
-    if (createError) {
-      const isDuplicate = createError.message?.toLowerCase().includes("already");
+    if (signUpError) {
+      const isDuplicate = signUpError.message?.toLowerCase().includes("already");
       sendJson(res, isDuplicate ? 409 : 400, {
-        error: isDuplicate ? "This email is already registered." : createError.message
+        error: isDuplicate ? "This email is already registered." : signUpError.message
       });
       return;
-    }
-
-    const publicClient = createPublicSupabaseClient();
-    const { data, error: signInError } = await publicClient.auth.signInWithPassword({
-      email: normalizedEmail,
-      password
-    });
-
-    if (signInError || !data.session || !data.user) {
-      sendJson(res, 500, {
-        error: signInError?.message || "Account created, but the session could not be started."
-      });
-      return;
-    }
-
-    let welcomeEmailSent = true;
-
-    try {
-      await sendWelcomeEmail({
-        email: normalizedEmail,
-        fullName: normalizedName
-      });
-    } catch (emailError) {
-      welcomeEmailSent = false;
-      console.error("Welcome email failed:", emailError);
     }
 
     sendJson(res, 201, {
-      user: sanitizeUser(data.user),
-      session: sanitizeSession(data.session),
-      welcomeEmailSent
+      requiresEmailVerification: !data.session,
+      email: normalizedEmail,
+      user: data.user ? sanitizeUser(data.user) : null,
+      session: data.session ? sanitizeSession(data.session) : null,
+      message: data.session
+        ? "Account created successfully."
+        : "We sent a verification code to your email. Enter it below to confirm your account."
     });
   } catch (error) {
     console.error(error);

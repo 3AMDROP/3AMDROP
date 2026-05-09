@@ -303,6 +303,20 @@
               Guests can browse, but adding LEGENDS TEE to the cart requires an account.
             </p>
 
+            <div class="verification-panel" id="verification-panel" hidden>
+              <span class="account-session-label">Confirm Your Email</span>
+              <p class="verification-copy" id="verification-copy">
+                Enter the code sent to your email address to activate your account.
+              </p>
+              <form class="account-form verification-form active" id="verify-form">
+                <label>
+                  Verification Code
+                  <input type="text" name="token" inputmode="numeric" placeholder="Enter the email code" required>
+                </label>
+                <button class="button" type="submit">Confirm Email</button>
+              </form>
+            </div>
+
             <div class="account-tabs">
               <button class="account-tab active" type="button" data-auth-target="register" aria-pressed="true">Register</button>
               <button class="account-tab" type="button" data-auth-target="login" aria-pressed="false">Log In</button>
