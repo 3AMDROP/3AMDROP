@@ -1,21 +1,34 @@
+const Stripe = require("stripe");
+
 const { requireAuthenticatedUser } = require("../_lib/auth");
 const { createAdminSupabaseClient } = require("../_lib/clients");
 const { allowMethod, readJsonBody, sendJson } = require("../_lib/http");
 const { getBaseUrl } = require("../_lib/url");
 
-const tapSecretKey = process.env.TAP_SECRET_KEY;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+function getStripeClient() {
+  if (!stripeSecretKey) {
+    throw new Error("Stripe is not configured yet.");
+  }
+
+  return new Stripe(stripeSecretKey);
+}
+
+function toMinorUnit(amount, currency) {
+  const normalizedCurrency = String(currency || "").toLowerCase();
+  const threeDecimalCurrencies = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+  const multiplier = threeDecimalCurrencies.has(normalizedCurrency) ? 1000 : 100;
+  return Math.round(Number(amount) * multiplier);
+}
 
 module.exports = async (req, res) => {
   if (!allowMethod(req, res, "POST")) {
     return;
   }
 
-  if (!tapSecretKey) {
-    sendJson(res, 500, { error: "Tap is not configured yet." });
-    return;
-  }
-
   try {
+    const stripe = getStripeClient();
     const authenticatedUser = await requireAuthenticatedUser(req);
     const { cart = [], customer = {}, shipping = {} } = await readJsonBody(req);
 
@@ -67,7 +80,7 @@ module.exports = async (req, res) => {
         payment_method: "card",
         payment_status: "pending",
         order_status: "pending_payment",
-        provider: "tap",
+        provider: "stripe",
         subtotal_bhd: subtotal.toFixed(3),
         shipping_bhd: shippingAmount.toFixed(3),
         total_bhd: total.toFixed(3),
@@ -81,69 +94,59 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const tapResponse = await fetch("https://api.tap.company/v2/charges", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tapSecretKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        amount: Number(total.toFixed(3)),
-        currency: "BHD",
-        customer_initiated: true,
-        threeDSecure: true,
-        save_card: false,
-        description: "3AM Worldwide order",
-        metadata: {
-          ...metadata,
-          order_id: orderRecord.id
-        },
-        receipt: {
-          email: true,
-          sms: false
-        },
-        customer: {
-          first_name: orderName,
-          email: orderEmail,
-          phone: {
-            country_code: 973,
-            number: customerPhone
-          }
-        },
-        source: {
-          id: "src_all"
-        },
-        redirect: {
-          url: `${baseUrl}/index.html?checkout=pending`
-        },
-        post: {
-          url: `${baseUrl}/api/checkout/verify-tap`
-        },
-        reference: {
-          transaction: orderRecord.id,
-          order: orderRecord.id
+    const lineItems = cart.map((item) => ({
+      quantity: Number(item.quantity) || 1,
+      price_data: {
+        currency: "bhd",
+        unit_amount: toMinorUnit(item.price, "bhd"),
+        product_data: {
+          name: item.name,
+          description: `Size: ${item.size}`
         }
-      })
+      }
+    }));
+
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: "bhd",
+        unit_amount: toMinorUnit(shippingAmount, "bhd"),
+        product_data: {
+          name: "Shipping",
+          description: `Bahrain delivery to ${shippingLocation}`
+        }
+      }
     });
 
-    const charge = await tapResponse.json().catch(() => ({}));
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: orderEmail,
+      client_reference_id: orderRecord.id,
+      line_items: lineItems,
+      success_url: `${baseUrl}/index.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/index.html?checkout=cancelled`,
+      payment_method_types: ["card"],
+      billing_address_collection: "required",
+      metadata: {
+        ...metadata,
+        order_id: orderRecord.id
+      }
+    });
 
-    if (!tapResponse.ok || !charge.transaction?.url || !charge.id) {
-      sendJson(res, 500, {
-        error: charge?.errors?.[0]?.description || charge?.message || "Could not start Tap checkout."
-      });
+    if (!session.url || !session.id) {
+      sendJson(res, 500, { error: "Could not start Stripe checkout." });
       return;
     }
 
     await supabase
       .from("orders")
       .update({
-        provider_reference: charge.id
+        provider_reference: session.id
       })
       .eq("id", orderRecord.id);
 
     sendJson(res, 200, {
-      url: charge.transaction.url,
+      url: session.url,
       orderId: orderRecord.id
     });
   } catch (error) {

@@ -379,27 +379,18 @@ const loginWithLocalDemoAuth = ({ email, password }) => {
 const handleCheckoutReturnState = async () => {
   const params = new URLSearchParams(window.location.search);
   const checkoutState = params.get("checkout");
-  const tapId = params.get("tap_id");
+  const sessionId = params.get("session_id");
   const clearCheckoutQuery = () => {
     const nextUrl = `${window.location.pathname}${window.location.hash || ""}`;
     window.history.replaceState({}, "", nextUrl);
   };
 
-  if (checkoutState === "success") {
-    clearCheckoutState();
-    renderCart();
-    renderDeliveryState();
-    checkoutStatus.textContent = "Payment completed successfully. Your order is ready for fulfillment.";
-    clearCheckoutQuery();
-  } else if (checkoutState === "cancelled") {
-    checkoutStatus.textContent = "Checkout was cancelled. You can review your cart and try again.";
-    clearCheckoutQuery();
-  } else if (checkoutState === "pending" && tapId && !isFilePreview) {
-    checkoutStatus.textContent = "Verifying your payment...";
+  if (checkoutState === "success" && sessionId && !isFilePreview) {
+    checkoutStatus.textContent = "Verifying your Stripe payment...";
 
     try {
-      const data = await apiRequest("/api/checkout/verify-tap", {
-        tap_id: tapId
+      const data = await apiRequest("/api/checkout/verify-session", {
+        session_id: sessionId
       });
 
       if (data.success) {
@@ -415,6 +406,15 @@ const handleCheckoutReturnState = async () => {
       checkoutStatus.textContent = error.message;
     }
 
+    clearCheckoutQuery();
+  } else if (checkoutState === "success") {
+    clearCheckoutState();
+    renderCart();
+    renderDeliveryState();
+    checkoutStatus.textContent = "Payment completed successfully. Your order is ready for fulfillment.";
+    clearCheckoutQuery();
+  } else if (checkoutState === "cancelled") {
+    checkoutStatus.textContent = "Checkout was cancelled. You can review your cart and try again.";
     clearCheckoutQuery();
   }
 };
@@ -691,11 +691,11 @@ checkoutForm?.addEventListener("submit", async (event) => {
   }
 
   if (isFilePreview) {
-    checkoutStatus.textContent = "Hosted card checkout works after deployment on Vercel. File preview mode cannot open the live payment session.";
+    checkoutStatus.textContent = "Hosted Stripe Checkout works after deployment on Vercel. File preview mode cannot open the live payment session.";
     return;
   }
 
-  checkoutStatus.textContent = "Redirecting to secure checkout...";
+  checkoutStatus.textContent = "Redirecting to Stripe Checkout...";
 
   try {
     const data = await apiRequest("/api/checkout/create-session", {

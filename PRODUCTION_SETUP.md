@@ -8,7 +8,7 @@ This project is wired for a production auth + welcome email flow using Vercel, S
 2. A Resend account
 3. A verified sending domain in Resend such as `hello@yourbrand.com`
 4. A Vercel project for deployment
-5. A Tap account with card / Benefit enabled for Bahrain
+5. A Stripe account in a supported country such as the UAE
 
 ## Environment Variables
 
@@ -21,7 +21,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 PUBLIC_APP_NAME=3AM Worldwide
-TAP_SECRET_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
 APP_URL=
 ADMIN_EMAILS=
 ```
@@ -56,15 +57,14 @@ That SQL now also:
 
 ## Payment Provider Note
 
-This project now uses Tap's hosted redirect flow for card and Benefit payments in Bahrain.
+This project now uses Stripe Checkout for hosted card payments.
 
-Tap's docs show:
+Stripe's docs show:
 
-- redirect flow with `transaction.url`
-- `src_bh.benefit` for Benefit
-- `src_all` to show supported payment methods on Tap's hosted payment page
-- Benefit payments in `BHD`
-- webhook validation using Tap's `hashstring` header and your secret key
+- Checkout Sessions create a hosted payment page and return a session URL
+- `success_url` and `cancel_url` control where customers come back after payment
+- hosted Checkout works without collecting raw card details on your own site
+- UAE Stripe accounts can present charges in `BHD`
 
 ## Admin Access
 
@@ -81,15 +81,15 @@ Tap's docs show:
 - Authenticated current-user endpoint
 - Persistent session restore through the backend
 - Welcome email sending through Resend
-- Hosted card and Benefit checkout with Tap
+- Hosted card checkout with Stripe
 - Real order records stored in Supabase
 - Authenticated order list and order detail endpoints
 - Admin order list and order status update endpoints
-- Tap webhook hash validation for payment confirmation
+- Stripe session verification on checkout return
 - RLS-enabled orders table for safe user order access
 
 ## Still Needed For Full Commerce Production
 
-- Tap webhook hardening and settlement reconciliation
+- Stripe webhook signing and event handling
 - Admin dashboard / fulfillment flow
 - Frontend order-history page wired to the new order APIs
