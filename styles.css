@@ -35,6 +35,10 @@ body {
   overflow-x: hidden;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body::selection {
   background: var(--accent);
   color: #0b0b0b;

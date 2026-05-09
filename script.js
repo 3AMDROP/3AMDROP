@@ -55,6 +55,7 @@ const SHIPPING_PRICE = 2.5;
 let selectedSize = "Small";
 let lightboxScale = 1;
 let selectedPaymentMethod = "cod";
+let authReady = false;
 
 const readStoredJson = (key, fallback) => {
   try {
@@ -143,6 +144,7 @@ const setAuthView = (target) => {
 
 const renderAccountState = () => {
   const account = getAccount();
+  document.body.classList.toggle("is-authenticated", Boolean(account));
 
   if (!account) {
     accountHeading.textContent = "Register or log in before adding products to cart.";
@@ -156,6 +158,7 @@ const renderAccountState = () => {
     accountMessage.textContent = isFilePreview
       ? "Local demo auth is active in file preview mode. Register here to test sign in before deployment."
       : "Guests can browse, but adding LEGENDS TEE to the cart requires an account.";
+    authReady = true;
     return;
   }
 
@@ -169,6 +172,7 @@ const renderAccountState = () => {
   loginForm.hidden = true;
   accountSessionName.textContent = account.fullName ? `${account.fullName} (${account.email})` : account.email;
   accountMessage.textContent = `Logged in as ${account.fullName || account.email}. You can now add products to cart and prepare your Bahrain order.`;
+  authReady = true;
 };
 
 const renderCheckoutTotals = () => {
@@ -309,6 +313,8 @@ const restoreLocalDemoSession = () => {
 };
 
 const restoreAuthSession = async () => {
+  authReady = false;
+
   if (isFilePreview) {
     restoreLocalDemoSession();
     return;
@@ -631,6 +637,11 @@ orderForm?.addEventListener("submit", (event) => {
 
 checkoutForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  if (!authReady) {
+    checkoutStatus.textContent = "Restoring your session...";
+    await restoreAuthSession();
+  }
 
   const account = getAccount();
   const cart = getCart();
