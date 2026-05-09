@@ -23,6 +23,7 @@ RESEND_FROM_EMAIL=
 PUBLIC_APP_NAME=3AM Worldwide
 STRIPE_SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
 APP_URL=
 ADMIN_EMAILS=
 ```
@@ -65,6 +66,7 @@ Stripe's docs show:
 - `success_url` and `cancel_url` control where customers come back after payment
 - hosted Checkout works without collecting raw card details on your own site
 - UAE Stripe accounts can present charges in `BHD`
+- webhooks should verify the `Stripe-Signature` header with your webhook secret
 
 ## Admin Access
 
@@ -86,10 +88,11 @@ Stripe's docs show:
 - Authenticated order list and order detail endpoints
 - Admin order list and order status update endpoints
 - Stripe session verification on checkout return
+- Stripe webhook signature verification for checkout completion events
 - RLS-enabled orders table for safe user order access
 
 ## Still Needed For Full Commerce Production
 
-- Stripe webhook signing and event handling
+- Connect Stripe webhook endpoint to `/api/checkout/verify-session`
 - Admin dashboard / fulfillment flow
 - Frontend order-history page wired to the new order APIs
