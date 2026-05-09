@@ -1483,31 +1483,34 @@ select {
   }
 
   .topbar {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 12px 14px 12px 18px;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 10px 12px 10px 14px;
     border-radius: 34px;
   }
 
   .topbar-right {
-    width: 100%;
+    width: auto;
+    flex: 1;
     margin-left: auto;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
   }
 
   .account-actions {
     display: flex;
     flex: 1;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
+    min-width: 0;
   }
 
   .account-pill,
   .cart-link {
-    min-height: 40px;
-    padding: 0 12px;
+    min-height: 38px;
+    padding: 0 10px;
     font-size: 0.82rem;
   }
 
@@ -1521,6 +1524,8 @@ select {
     display: inline-flex;
     position: relative;
     flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
   }
 
   .nav {
@@ -1610,26 +1615,42 @@ select {
 
 @media (max-width: 560px) {
   .brand-logo {
-    height: 52px;
+    height: 44px;
   }
 
   .topbar {
-    padding: 12px;
+    gap: 10px;
+    padding: 10px;
   }
 
   .topbar-right {
-    align-items: flex-start;
+    width: auto;
+    flex: 1;
+    align-items: center;
   }
 
   .account-actions {
-    width: calc(100% - 60px);
-    justify-content: flex-start;
+    width: auto;
+    flex: 1;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   .account-pill {
-    max-width: 100%;
+    max-width: 110px;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 0.8rem;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cart-link {
+    max-width: 100%;
+    padding: 0 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
   }
 
   .hero h1 {
