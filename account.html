@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account | 3AM Worldwide</title>
+  <meta name="description" content="Register, verify, and log into your 3AM Worldwide account.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="orb orb-left" aria-hidden="true"></div>
+  <div class="orb orb-right" aria-hidden="true"></div>
+
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="3AM Worldwide home">
+        <img class="brand-logo" src="brand-logo.png" alt="3AM Worldwide logo">
+      </a>
+
+      <div class="topbar-right">
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="product.html">Product</a>
+          <a href="cart.html">Cart</a>
+          <a href="account.html">Account</a>
+          <a href="checkout.html">Checkout</a>
+        </nav>
+
+        <div class="account-actions">
+          <a class="button button-ghost auth-trigger" id="header-login" href="account.html" data-auth-target="login">Log In</a>
+          <a class="button auth-trigger" id="header-register" href="account.html" data-auth-target="register">Register</a>
+          <span class="account-pill" id="account-pill">Guest</span>
+          <a class="cart-link" href="cart.html" aria-label="View cart">
+            Cart
+            <span class="cart-count" id="cart-count">0</span>
+          </a>
+        </div>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section commerce-section">
+        <div class="account-panel reveal" id="account">
+          <div class="panel-heading">
+            <p class="eyebrow">Account</p>
+            <h2 id="account-heading">Register or log in before adding products to cart.</h2>
+          </div>
+          <p class="account-message" id="account-message">
+            Guests can browse, but adding LEGENDS TEE to the cart requires an account.
+          </p>
+
+          <div class="verification-panel" id="verification-panel" hidden>
+            <span class="account-session-label">Confirm Your Email</span>
+            <p class="verification-copy" id="verification-copy">
+              Enter the code sent to your email address to activate your account.
+            </p>
+            <form class="account-form verification-form active" id="verify-form">
+              <label>
+                Verification Code
+                <input type="text" name="token" inputmode="numeric" placeholder="Enter the email code" required>
+              </label>
+              <button class="button" type="submit">Confirm Email</button>
+            </form>
+          </div>
+
+          <div class="account-tabs">
+            <button class="account-tab active" type="button" data-auth-target="register" aria-pressed="true">Register</button>
+            <button class="account-tab" type="button" data-auth-target="login" aria-pressed="false">Log In</button>
+          </div>
+
+          <div class="account-session" id="account-session" hidden>
+            <span class="account-session-label">Signed in</span>
+            <strong id="account-session-name"></strong>
+            <button class="button button-ghost" type="button" id="logout-button">Log Out</button>
+          </div>
+
+          <form class="account-form active" id="register-form">
+            <label>
+              Full Name
+              <input type="text" name="fullName" placeholder="Your full name" required>
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" placeholder="Your email" required>
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" placeholder="Create a password" required>
+            </label>
+            <button class="button" type="submit">Create Account</button>
+          </form>
+
+          <form class="account-form" id="login-form">
+            <label>
+              Email
+              <input type="email" name="email" placeholder="Your email" required>
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" placeholder="Your password" required>
+            </label>
+            <button class="button" type="submit">Log In</button>
+          </form>
+        </div>
+
+        <div class="admin-panel reveal" id="admin-panel" hidden>
+          <div class="panel-heading">
+            <p class="eyebrow">Admin Orders</p>
+            <h2>Incoming orders for fulfillment.</h2>
+          </div>
+          <p class="account-message" id="admin-message">
+            Sign in with an admin email to view new orders.
+          </p>
+          <div class="admin-orders" id="admin-orders"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 3AM Worldwide. Modern clothing with a star-led identity.</p>
+      <div class="footer-links">
+        <a href="checkout.html">Checkout</a>
+        <a href="index.html">Back to home</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

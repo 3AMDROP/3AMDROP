@@ -1,5 +1,4 @@
 const { createClient } = require("@supabase/supabase-js");
-const { Resend } = require("resend");
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -36,34 +35,73 @@ function createAdminSupabaseClient() {
   });
 }
 
-function createResendClient() {
-  const apiKey = requireEnv("RESEND_API_KEY");
-  return new Resend(apiKey);
-}
-
-function createOptionalResendClient() {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) {
-    return null;
-  }
-
-  return new Resend(apiKey);
-}
-
 function getAppName() {
   return process.env.PUBLIC_APP_NAME || "3AM Worldwide";
 }
 
 function getFromEmail() {
-  return requireEnv("RESEND_FROM_EMAIL");
+  return requireEnv("BREVO_FROM_EMAIL");
+}
+
+function createOptionalBrevoClient() {
+  const apiKey = process.env.BREVO_API_KEY;
+
+  if (!apiKey) {
+    return null;
+  }
+
+  return {
+    async sendEmail({ from, to, subject, html }) {
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
+          accept: "application/json"
+        },
+        body: JSON.stringify({
+          sender: normalizeSender(from),
+          to: normalizeRecipients(to),
+          subject,
+          htmlContent: html
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Brevo email send failed (${response.status}): ${errorText}`);
+      }
+
+      return response.json();
+    }
+  };
+}
+
+function normalizeSender(from) {
+  const match = String(from).match(/^(.*)<([^>]+)>$/);
+
+  if (!match) {
+    return { email: String(from).trim() };
+  }
+
+  return {
+    name: match[1].trim().replace(/^"|"$/g, ""),
+    email: match[2].trim()
+  };
+}
+
+function normalizeRecipients(to) {
+  return []
+    .concat(to || [])
+    .map((value) => String(value).trim())
+    .filter(Boolean)
+    .map((email) => ({ email }));
 }
 
 module.exports = {
   createAdminSupabaseClient,
-  createOptionalResendClient,
+  createOptionalBrevoClient,
   createPublicSupabaseClient,
-  createResendClient,
   getAppName,
   getFromEmail,
   requireEnv

@@ -65,6 +65,13 @@ let selectedPaymentMethod = "cod";
 let authReady = false;
 let isAdminUser = false;
 
+const navigateTo = (href) => {
+  window.location.href = href;
+};
+
+const sanitizeNameInput = (value) => String(value || "").replace(/[^A-Za-z ]+/g, "").replace(/\s{2,}/g, " ").trimStart();
+const sanitizePhoneInput = (value) => String(value || "").replace(/\D+/g, "");
+
 const readStoredJson = (key, fallback) => {
   try {
     return JSON.parse(localStorage.getItem(key)) ?? fallback;
@@ -170,6 +177,10 @@ const apiGetRequest = async (path) => {
 };
 
 const setAuthView = (target) => {
+  if (!accountTabs.length || !accountForms.length) {
+    return;
+  }
+
   accountTabs.forEach((tab) => {
     const isActive = tab.dataset.authTarget === target;
     tab.classList.toggle("active", isActive);
@@ -189,46 +200,118 @@ const renderAccountState = () => {
   if (!account) {
     const isVerifying = Boolean(pendingVerificationEmail);
 
-    accountHeading.textContent = isVerifying
-      ? "Confirm your email to activate your account."
-      : "Register or log in before adding products to cart.";
-    accountPill.textContent = "Guest";
-    accountSession.hidden = true;
-    headerLogin.hidden = false;
-    headerRegister.hidden = false;
-    verificationPanel.hidden = !isVerifying;
-    accountTabsWrap.hidden = isVerifying;
-    registerForm.hidden = isVerifying ? true : false;
-    loginForm.hidden = isVerifying ? true : false;
-    verificationCopy.textContent = pendingVerificationEmail
-      ? `We sent a verification code to ${pendingVerificationEmail}. Enter it below to confirm your email and continue.`
-      : "Enter the code sent to your email address to activate your account.";
-    accountMessage.textContent = isVerifying
-      ? "Your account is almost ready. Confirm your email to finish signing in."
-      : isFilePreview
-      ? "Local demo auth is active in file preview mode. Register here to test sign in before deployment."
-      : "Guests can browse, but adding LEGENDS TEE to the cart requires an account.";
+    if (accountHeading) {
+      accountHeading.textContent = isVerifying
+        ? "Confirm your email to activate your account."
+        : "Register or log in before adding products to cart.";
+    }
+
+    if (accountPill) {
+      accountPill.textContent = "Guest";
+    }
+
+    if (accountSession) {
+      accountSession.hidden = true;
+    }
+
+    if (headerLogin) {
+      headerLogin.hidden = false;
+    }
+
+    if (headerRegister) {
+      headerRegister.hidden = false;
+    }
+
+    if (verificationPanel) {
+      verificationPanel.hidden = !isVerifying;
+    }
+
+    if (accountTabsWrap) {
+      accountTabsWrap.hidden = isVerifying;
+    }
+
+    if (registerForm) {
+      registerForm.hidden = isVerifying ? true : false;
+    }
+
+    if (loginForm) {
+      loginForm.hidden = isVerifying ? true : false;
+    }
+
+    if (verificationCopy) {
+      verificationCopy.textContent = pendingVerificationEmail
+        ? `We sent a verification code to ${pendingVerificationEmail}. Enter it below to confirm your email and continue.`
+        : "Enter the code sent to your email address to activate your account.";
+    }
+
+    if (accountMessage) {
+      accountMessage.textContent = isVerifying
+        ? "Your account is almost ready. Confirm your email to finish signing in."
+        : isFilePreview
+        ? "Local demo auth is active in file preview mode. Register here to test sign in before deployment."
+        : "Guests can browse, but adding LEGENDS TEE to the cart requires an account.";
+    }
+
     isAdminUser = false;
-    adminPanel.hidden = true;
+    if (adminPanel) {
+      adminPanel.hidden = true;
+    }
     authReady = true;
     return;
   }
 
-  accountHeading.textContent = "Your account is active.";
-  accountPill.textContent = account.fullName || account.email;
-  accountSession.hidden = false;
-  headerLogin.hidden = true;
-  headerRegister.hidden = true;
-  verificationPanel.hidden = true;
-  accountTabsWrap.hidden = true;
-  registerForm.hidden = true;
-  loginForm.hidden = true;
-  accountSessionName.textContent = account.fullName ? `${account.fullName} (${account.email})` : account.email;
-  accountMessage.textContent = `Logged in as ${account.fullName || account.email}. You can now add products to cart and prepare your Bahrain order.`;
+  if (accountHeading) {
+    accountHeading.textContent = "Your account is active.";
+  }
+
+  if (accountPill) {
+    accountPill.textContent = account.fullName || account.email;
+  }
+
+  if (accountSession) {
+    accountSession.hidden = false;
+  }
+
+  if (headerLogin) {
+    headerLogin.hidden = true;
+  }
+
+  if (headerRegister) {
+    headerRegister.hidden = true;
+  }
+
+  if (verificationPanel) {
+    verificationPanel.hidden = true;
+  }
+
+  if (accountTabsWrap) {
+    accountTabsWrap.hidden = true;
+  }
+
+  if (registerForm) {
+    registerForm.hidden = true;
+  }
+
+  if (loginForm) {
+    loginForm.hidden = true;
+  }
+
+  if (accountSessionName) {
+    accountSessionName.textContent = account.fullName ? `${account.fullName} (${account.email})` : account.email;
+  }
+
+  if (accountMessage) {
+    accountMessage.textContent = `Logged in as ${account.fullName || account.email}. You can now add products to cart and prepare your Bahrain order.`;
+  }
+
   authReady = true;
 };
 
 const renderAdminOrders = (orders = []) => {
+  if (!adminOrders || !adminMessage) {
+    return;
+  }
+
   adminOrders.innerHTML = "";
 
   if (!orders.length) {
@@ -269,9 +352,11 @@ const renderAdminOrders = (orders = []) => {
 const loadAdminOrders = async () => {
   const account = getAccount();
 
-  if (!account || isFilePreview) {
+  if (!adminPanel || !adminMessage || !adminOrders || !account || isFilePreview) {
     isAdminUser = false;
-    adminPanel.hidden = true;
+    if (adminPanel) {
+      adminPanel.hidden = true;
+    }
     return;
   }
 
@@ -291,21 +376,47 @@ const renderCheckoutTotals = () => {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = cart.length ? subtotal + SHIPPING_PRICE : 0;
 
-  checkoutProductTotal.textContent = `${subtotal.toFixed(1)} BD`;
-  checkoutTotal.textContent = `${total.toFixed(1)} BD`;
+  if (checkoutProductTotal) {
+    checkoutProductTotal.textContent = `${subtotal.toFixed(1)} BD`;
+  }
+
+  if (checkoutTotal) {
+    checkoutTotal.textContent = `${total.toFixed(1)} BD`;
+  }
 };
 
 const renderDeliveryState = () => {
   const delivery = getDelivery();
 
+  if (!deliveryStatus || !paymentLink) {
+    return;
+  }
+
   if (!delivery) {
     deliveryStatus.textContent = "Save delivery details first so checkout can create the order correctly.";
     paymentLink.hidden = true;
+    if (checkoutForm?.closest(".checkout-panel")) {
+      checkoutForm.closest(".checkout-panel").hidden = true;
+    }
     return;
   }
 
   deliveryStatus.textContent = `Delivery saved for ${delivery.customerName} in ${delivery.location}. Bahrain shipping fee: 2.5 BD.`;
   paymentLink.hidden = false;
+  if (checkoutForm?.closest(".checkout-panel")) {
+    checkoutForm.closest(".checkout-panel").hidden = false;
+  }
+
+  const checkoutNameInput = checkoutForm?.elements?.namedItem("checkoutName");
+  const checkoutPhoneInput = checkoutForm?.elements?.namedItem("checkoutPhone");
+
+  if (checkoutNameInput && !checkoutNameInput.value) {
+    checkoutNameInput.value = delivery.customerName || "";
+  }
+
+  if (checkoutPhoneInput && !checkoutPhoneInput.value) {
+    checkoutPhoneInput.value = delivery.phone || "";
+  }
 };
 
 const renderCart = () => {
@@ -313,7 +424,15 @@ const renderCart = () => {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = cart.length ? subtotal + SHIPPING_PRICE : 0;
 
-  cartCount.textContent = String(cart.reduce((sum, item) => sum + item.quantity, 0));
+  if (cartCount) {
+    cartCount.textContent = String(cart.reduce((sum, item) => sum + item.quantity, 0));
+  }
+
+  if (!cartItems || !cartEmpty || !cartSubtotal || !cartTotal) {
+    renderCheckoutTotals();
+    return;
+  }
+
   cartSubtotal.textContent = `${subtotal.toFixed(1)} BD`;
   cartTotal.textContent = `${total.toFixed(1)} BD`;
   cartItems.innerHTML = "";
@@ -347,9 +466,15 @@ const addProductToCart = () => {
   const account = getAccount();
 
   if (!account) {
-    productStatus.textContent = "Please register or log in first before adding LEGENDS TEE to your cart.";
+    if (productStatus) {
+      productStatus.textContent = "Please register or log in first before adding LEGENDS TEE to your cart.";
+    }
     setAuthView("register");
-    document.getElementById("account")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (document.getElementById("account")) {
+      document.getElementById("account")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigateTo("account.html");
+    }
     return;
   }
 
@@ -368,9 +493,33 @@ const addProductToCart = () => {
   }
 
   saveStoredJson(CART_STORAGE_KEY, cart);
-  productStatus.textContent = `LEGENDS TEE in ${selectedSize} was added to your cart.`;
+  if (productStatus) {
+    productStatus.textContent = `LEGENDS TEE in ${selectedSize} was added to your cart.`;
+  }
   renderCart();
-  document.getElementById("cart")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (document.getElementById("cart")) {
+    document.getElementById("cart")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    navigateTo("cart.html");
+  }
+};
+
+const attachInputSanitizers = () => {
+  const nameInputs = document.querySelectorAll('input[name="customerName"], input[name="checkoutName"]');
+  const phoneInputs = document.querySelectorAll('input[name="phone"], input[name="checkoutPhone"]');
+
+  nameInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      input.value = sanitizeNameInput(input.value);
+    });
+  });
+
+  phoneInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      input.value = sanitizePhoneInput(input.value);
+    });
+  });
 };
 
 const updateLightboxScale = () => {
@@ -403,7 +552,9 @@ const setPaymentMethod = (method) => {
     button.setAttribute("aria-pressed", String(isActive));
   });
 
-  cardFields.hidden = method !== "card";
+  if (cardFields) {
+    cardFields.hidden = method !== "card";
+  }
 };
 
 const restoreLocalDemoSession = () => {
@@ -503,7 +654,9 @@ const handleCheckoutReturnState = async () => {
   };
 
   if (checkoutState === "success" && sessionId && !isFilePreview) {
-    checkoutStatus.textContent = "Verifying your Stripe payment...";
+    if (checkoutStatus) {
+      checkoutStatus.textContent = "Verifying your Stripe payment...";
+    }
 
     try {
       const data = await apiRequest("/api/checkout/verify-session", {
@@ -516,11 +669,15 @@ const handleCheckoutReturnState = async () => {
         renderDeliveryState();
       }
 
-      checkoutStatus.textContent = data.success
-        ? `Payment confirmed. Order ${data.orderId} is now marked as paid.`
-        : `Payment returned with status ${data.status}. Please contact support if you were charged.`;
+      if (checkoutStatus) {
+        checkoutStatus.textContent = data.success
+          ? `Payment confirmed. Order ${data.orderId} is now marked as paid.`
+          : `Payment returned with status ${data.status}. Please contact support if you were charged.`;
+      }
     } catch (error) {
-      checkoutStatus.textContent = error.message;
+      if (checkoutStatus) {
+        checkoutStatus.textContent = error.message;
+      }
     }
 
     clearCheckoutQuery();
@@ -528,10 +685,14 @@ const handleCheckoutReturnState = async () => {
     clearCheckoutState();
     renderCart();
     renderDeliveryState();
-    checkoutStatus.textContent = "Payment completed successfully. Your order is ready for fulfillment.";
+    if (checkoutStatus) {
+      checkoutStatus.textContent = "Payment completed successfully. Your order is ready for fulfillment.";
+    }
     clearCheckoutQuery();
   } else if (checkoutState === "cancelled") {
-    checkoutStatus.textContent = "Checkout was cancelled. You can review your cart and try again.";
+    if (checkoutStatus) {
+      checkoutStatus.textContent = "Checkout was cancelled. You can review your cart and try again.";
+    }
     clearCheckoutQuery();
   }
 };
@@ -807,12 +968,22 @@ orderForm?.addEventListener("submit", (event) => {
 
   const formData = new FormData(orderForm);
   const delivery = {
-    customerName: String(formData.get("customerName") || "").trim(),
-    phone: String(formData.get("phone") || "").trim(),
+    customerName: sanitizeNameInput(formData.get("customerName")),
+    phone: sanitizePhoneInput(formData.get("phone")),
     location: String(formData.get("location") || "").trim(),
     size: String(formData.get("size") || "").trim(),
     address: String(formData.get("address") || "").trim()
   };
+
+  if (!delivery.customerName) {
+    orderStatus.textContent = "Please enter a name using letters only.";
+    return;
+  }
+
+  if (!delivery.phone) {
+    orderStatus.textContent = "Please enter a phone number using numbers only.";
+    return;
+  }
 
   saveStoredJson(DELIVERY_STORAGE_KEY, delivery);
   selectedSize = delivery.size || selectedSize;
@@ -824,7 +995,11 @@ orderForm?.addEventListener("submit", (event) => {
   renderDeliveryState();
   orderStatus.textContent = `Delivery details saved for ${delivery.location || "Bahrain"}. Continue to payment to place the order.`;
   orderForm.reset();
-  document.getElementById("checkout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (document.getElementById("checkout")) {
+    document.getElementById("checkout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    navigateTo("checkout.html");
+  }
 });
 
 checkoutForm?.addEventListener("submit", async (event) => {
@@ -842,25 +1017,45 @@ checkoutForm?.addEventListener("submit", async (event) => {
   if (!account) {
     checkoutStatus.textContent = "Please register or log in before continuing to payment.";
     setAuthView("register");
-    document.getElementById("account")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (document.getElementById("account")) {
+      document.getElementById("account")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigateTo("account.html");
+    }
     return;
   }
 
   if (!cart.length) {
     checkoutStatus.textContent = "Add LEGENDS TEE to your cart before continuing to payment.";
-    document.getElementById("drops")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (document.getElementById("drops")) {
+      document.getElementById("drops")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigateTo("product.html");
+    }
     return;
   }
 
   if (!delivery?.customerName || !delivery?.phone || !delivery?.location || !delivery?.address) {
     checkoutStatus.textContent = "Please save delivery details first before continuing to payment.";
-    document.getElementById("order-product")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (document.getElementById("order-product")) {
+      document.getElementById("order-product")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
     return;
   }
 
   const formData = new FormData(checkoutForm);
-  const checkoutName = String(formData.get("checkoutName") || account.fullName || "").trim();
-  const checkoutPhone = String(formData.get("checkoutPhone") || delivery.phone || "").trim();
+  const checkoutName = sanitizeNameInput(formData.get("checkoutName") || account.fullName || "");
+  const checkoutPhone = sanitizePhoneInput(formData.get("checkoutPhone") || delivery.phone || "");
+
+  if (!checkoutName) {
+    checkoutStatus.textContent = "Please enter a valid order name using letters only.";
+    return;
+  }
+
+  if (!checkoutPhone) {
+    checkoutStatus.textContent = "Please enter a valid phone number using numbers only.";
+    return;
+  }
 
   if (selectedPaymentMethod === "cod") {
     checkoutStatus.textContent = "Creating your order...";
@@ -940,6 +1135,7 @@ const revealObserver = new IntersectionObserver(
 revealItems.forEach((item) => revealObserver.observe(item));
 
 const initializeApp = async () => {
+  attachInputSanitizers();
   setAuthView("register");
   setPaymentMethod("cod");
   renderCart();

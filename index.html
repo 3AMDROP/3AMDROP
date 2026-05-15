@@ -34,18 +34,20 @@
 
       <div class="topbar-right">
         <nav class="nav" id="site-nav" aria-label="Primary">
-          <a href="#story">Story</a>
-          <a href="#drops">Product</a>
-          <a href="#cart">Cart</a>
-          <a href="#account">Account</a>
-          <a href="#contact">Contact</a>
+          <a href="index.html#story">Story</a>
+          <a href="product.html">Product</a>
+          <a href="cart.html">Cart</a>
+          <a href="account.html">Account</a>
+          <a href="checkout.html">Checkout</a>
+          <a href="index.html#refund-policy">Refunds</a>
+          <a href="index.html#contact">Contact</a>
         </nav>
 
         <div class="account-actions">
-          <a class="button button-ghost auth-trigger" id="header-login" href="#account" data-auth-target="login">Log In</a>
-          <a class="button auth-trigger" id="header-register" href="#account" data-auth-target="register">Register</a>
+          <a class="button button-ghost auth-trigger" id="header-login" href="account.html" data-auth-target="login">Log In</a>
+          <a class="button auth-trigger" id="header-register" href="account.html" data-auth-target="register">Register</a>
           <span class="account-pill" id="account-pill">Guest</span>
-          <a class="cart-link" href="#cart" aria-label="View cart">
+          <a class="cart-link" href="cart.html" aria-label="View cart">
             Cart
             <span class="cart-count" id="cart-count">0</span>
           </a>
@@ -69,8 +71,8 @@
           </p>
 
           <div class="hero-actions">
-            <a class="button" href="#drops">Explore The Drop</a>
-            <a class="button button-ghost" href="#contact">Stock The Brand</a>
+            <a class="button" href="product.html">Explore The Drop</a>
+            <a class="button button-ghost" href="index.html#contact">Stock The Brand</a>
           </div>
 
           <ul class="hero-metrics" aria-label="Brand highlights">
@@ -145,7 +147,7 @@
       <section class="section drops-section" id="drops">
         <div class="section-heading reveal">
           <p class="eyebrow">Featured Product</p>
-          <h2>LEGENDS TEE arrives with a cinematic front hit and a statement back graphic.</h2>
+          <h2>LEGENDS TEE leads the drop, with the full shopping flow now on its own dedicated pages.</h2>
         </div>
 
         <div class="product-spotlight">
@@ -184,21 +186,11 @@
               </div>
             </div>
 
-            <div class="size-picker">
-              <span class="size-picker-label">Select Size</span>
-              <div class="size-options" role="radiogroup" aria-label="LEGENDS TEE size">
-                <button class="size-option active" type="button" data-size="Small" aria-pressed="true">Small</button>
-                <button class="size-option" type="button" data-size="Medium" aria-pressed="false">Medium</button>
-                <button class="size-option" type="button" data-size="Large" aria-pressed="false">Large</button>
-                <button class="size-option" type="button" data-size="XLarge" aria-pressed="false">XLarge</button>
-              </div>
-            </div>
-
             <div class="product-actions">
-              <button class="button" type="button" id="add-to-cart">Add To Cart</button>
-              <a class="button" href="#order-product">Order LEGENDS TEE</a>
+              <a class="button" href="product.html">View Product Page</a>
+              <a class="button button-ghost" href="cart.html">Open Cart</a>
             </div>
-            <p class="product-status" id="product-status" aria-live="polite"></p>
+            <p class="product-status">Browse the dedicated product page to choose size, add to cart, and continue cleanly through checkout.</p>
           </article>
 
           <div class="product-gallery reveal">
@@ -227,197 +219,6 @@
           <figure class="lookbook-card reveal">
             <img class="zoomable-image" src="assets/legends-7.png" alt="LEGENDS TEE full body studio shot">
           </figure>
-        </div>
-
-        <div class="order-panel reveal" id="order-product">
-          <div class="order-copy">
-            <p class="eyebrow">Delivery Details</p>
-            <h3>Save delivery details before payment.</h3>
-            <p>
-              Fill in your delivery details below first. Shipping is <strong>2.5 BD</strong> and we currently ship
-              to <strong>Bahrain only</strong>. Your order is only created after you continue through payment.
-            </p>
-            <div class="order-summary">
-              <span>Product: 7.5 BD</span>
-              <span>Shipping: 2.5 BD</span>
-              <strong>Total: 10 BD</strong>
-            </div>
-          </div>
-
-          <form class="order-form" id="order-form">
-            <label>
-              Full Name
-              <input type="text" name="customerName" placeholder="Your full name" required>
-            </label>
-            <label>
-              Phone Number
-              <input type="tel" name="phone" placeholder="Your phone number" required>
-            </label>
-            <label>
-              Area / Location
-              <input type="text" name="location" placeholder="Your area in Bahrain" required>
-            </label>
-            <label>
-              Size
-              <select name="size" required>
-                <option value="">Select size</option>
-                <option>Small</option>
-                <option>Medium</option>
-                <option>Large</option>
-                <option>XLarge</option>
-              </select>
-            </label>
-            <label class="full-width">
-              Full Address
-              <textarea name="address" rows="4" placeholder="Building, road, block, and delivery details" required></textarea>
-            </label>
-            <button class="button" type="submit">Save Delivery Details</button>
-            <p class="form-status" id="order-status" aria-live="polite"></p>
-            <a class="inline-payment-link" id="payment-link" href="#checkout" hidden>Continue to Payment</a>
-          </form>
-        </div>
-      </section>
-
-      <section class="section commerce-section">
-        <div class="commerce-grid">
-          <div class="cart-panel reveal" id="cart">
-            <div class="panel-heading">
-              <p class="eyebrow">Cart</p>
-              <h2>Your cart stays ready for checkout.</h2>
-            </div>
-            <p class="cart-empty" id="cart-empty">Your cart is empty right now.</p>
-            <div class="cart-items" id="cart-items" aria-live="polite"></div>
-            <div class="cart-summary" id="cart-summary">
-              <span>Subtotal: <strong id="cart-subtotal">0 BD</strong></span>
-              <span>Shipping: <strong>2.5 BD</strong></span>
-              <strong>Total: <span id="cart-total">0 BD</span></strong>
-            </div>
-          </div>
-
-          <div class="account-panel reveal" id="account">
-            <div class="panel-heading">
-              <p class="eyebrow">Account</p>
-              <h2 id="account-heading">Register or log in before adding products to cart.</h2>
-            </div>
-            <p class="account-message" id="account-message">
-              Guests can browse, but adding LEGENDS TEE to the cart requires an account.
-            </p>
-
-            <div class="verification-panel" id="verification-panel" hidden>
-              <span class="account-session-label">Confirm Your Email</span>
-              <p class="verification-copy" id="verification-copy">
-                Enter the code sent to your email address to activate your account.
-              </p>
-              <form class="account-form verification-form active" id="verify-form">
-                <label>
-                  Verification Code
-                  <input type="text" name="token" inputmode="numeric" placeholder="Enter the email code" required>
-                </label>
-                <button class="button" type="submit">Confirm Email</button>
-              </form>
-            </div>
-
-            <div class="account-tabs">
-              <button class="account-tab active" type="button" data-auth-target="register" aria-pressed="true">Register</button>
-              <button class="account-tab" type="button" data-auth-target="login" aria-pressed="false">Log In</button>
-            </div>
-
-            <div class="account-session" id="account-session" hidden>
-              <span class="account-session-label">Signed in</span>
-              <strong id="account-session-name"></strong>
-              <button class="button button-ghost" type="button" id="logout-button">Log Out</button>
-            </div>
-
-            <form class="account-form active" id="register-form">
-              <label>
-                Full Name
-                <input type="text" name="fullName" placeholder="Your full name" required>
-              </label>
-              <label>
-                Email
-                <input type="email" name="email" placeholder="Your email" required>
-              </label>
-              <label>
-                Password
-                <input type="password" name="password" placeholder="Create a password" required>
-              </label>
-              <button class="button" type="submit">Create Account</button>
-            </form>
-
-            <form class="account-form" id="login-form">
-              <label>
-                Email
-                <input type="email" name="email" placeholder="Your email" required>
-              </label>
-              <label>
-                Password
-                <input type="password" name="password" placeholder="Your password" required>
-              </label>
-              <button class="button" type="submit">Log In</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="checkout-panel reveal" id="checkout">
-          <div class="panel-heading">
-            <p class="eyebrow">Payment</p>
-            <h2>Choose how you want to pay for your order.</h2>
-          </div>
-          <p class="checkout-note">
-            Select a payment method below. Cash on delivery stays on this site. Card checkout opens a secure hosted payment page.
-          </p>
-          <p class="delivery-status" id="delivery-status">
-            Save delivery details first so checkout can create the order correctly.
-          </p>
-
-          <form class="checkout-form" id="checkout-form">
-            <div class="payment-methods" role="radiogroup" aria-label="Payment method">
-              <button class="payment-method active" type="button" data-payment-method="cod" aria-pressed="true">
-                Cash on Delivery
-              </button>
-              <button class="payment-method" type="button" data-payment-method="card" aria-pressed="false">
-                Pay with Card
-              </button>
-            </div>
-
-            <div class="checkout-grid">
-              <label>
-                Order Name
-                <input type="text" name="checkoutName" placeholder="Name on the order" required>
-              </label>
-              <label>
-                Phone Number
-                <input type="tel" name="checkoutPhone" placeholder="Phone number" required>
-              </label>
-            </div>
-
-            <div class="card-fields" id="card-fields" hidden>
-              <div class="secure-payment-note">
-                <p>Card details are collected securely on the hosted checkout page after you continue.</p>
-                <span>We do not store raw card numbers on this website.</span>
-              </div>
-            </div>
-
-            <div class="checkout-summary">
-              <span>Product Total: <strong id="checkout-product-total">0 BD</strong></span>
-              <span>Shipping: <strong>2.5 BD</strong></span>
-              <strong>Payable Total: <span id="checkout-total">0 BD</span></strong>
-            </div>
-
-            <button class="button" type="submit">Confirm Payment</button>
-            <p class="form-status" id="checkout-status" aria-live="polite"></p>
-          </form>
-        </div>
-
-        <div class="admin-panel reveal" id="admin-panel" hidden>
-          <div class="panel-heading">
-            <p class="eyebrow">Admin Orders</p>
-            <h2>Incoming orders for fulfillment.</h2>
-          </div>
-          <p class="account-message" id="admin-message">
-            Sign in with an admin email to view new orders.
-          </p>
-          <div class="admin-orders" id="admin-orders"></div>
         </div>
       </section>
 
@@ -476,11 +277,54 @@
           <p class="form-status" id="form-status" aria-live="polite"></p>
         </form>
       </section>
+
+      <section class="section policy-section" id="refund-policy">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Refund Policy</p>
+          <h2>Clear terms for returns, exchanges, and order issues.</h2>
+        </div>
+
+        <div class="policy-grid">
+          <article class="policy-card reveal">
+            <h3>Returns Window</h3>
+            <p>
+              Customers can request a return within 7 days of delivery if the item is unworn, unwashed, and in original condition.
+            </p>
+          </article>
+          <article class="policy-card reveal">
+            <h3>Non-Returnable Items</h3>
+            <p>
+              Items returned with visible wear, damage caused after delivery, or missing original packaging may be refused.
+            </p>
+          </article>
+          <article class="policy-card reveal">
+            <h3>Damaged Or Wrong Orders</h3>
+            <p>
+              If a customer receives the wrong item or a damaged product, they should contact 3AM Worldwide within 48 hours of delivery.
+            </p>
+          </article>
+          <article class="policy-card reveal">
+            <h3>Refund Timing</h3>
+            <p>
+              Approved refunds are processed back to the original payment method. Bank timing can vary depending on the payment provider.
+            </p>
+          </article>
+        </div>
+
+        <div class="policy-note reveal">
+          <p>
+            To request a return or report an order issue, contact us through the form above and include your order number, full name, and reason for the request.
+          </p>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
       <p>© 2026 3AM Worldwide. Modern clothing with a star-led identity.</p>
-      <a href="#home">Back to top</a>
+      <div class="footer-links">
+        <a href="#refund-policy">Refund Policy</a>
+        <a href="#home">Back to top</a>
+      </div>
     </footer>
   </div>
 

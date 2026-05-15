@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product | 3AM Worldwide</title>
+  <meta name="description" content="Shop the LEGENDS TEE on the dedicated 3AM Worldwide product page.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="orb orb-left" aria-hidden="true"></div>
+  <div class="orb orb-right" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true">
+    <span class="star star-a"></span>
+    <span class="star star-b"></span>
+    <span class="star star-c"></span>
+    <span class="star star-d"></span>
+    <span class="star star-e"></span>
+  </div>
+
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="3AM Worldwide home">
+        <img class="brand-logo" src="brand-logo.png" alt="3AM Worldwide logo">
+      </a>
+
+      <div class="topbar-right">
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="product.html">Product</a>
+          <a href="cart.html">Cart</a>
+          <a href="account.html">Account</a>
+          <a href="checkout.html">Checkout</a>
+          <a href="index.html#refund-policy">Refunds</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+
+        <div class="account-actions">
+          <a class="button button-ghost auth-trigger" id="header-login" href="account.html" data-auth-target="login">Log In</a>
+          <a class="button auth-trigger" id="header-register" href="account.html" data-auth-target="register">Register</a>
+          <span class="account-pill" id="account-pill">Guest</span>
+          <a class="cart-link" href="cart.html" aria-label="View cart">
+            Cart
+            <span class="cart-count" id="cart-count">0</span>
+          </a>
+        </div>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section drops-section" id="drops">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Product Page</p>
+          <h2>LEGENDS TEE with a cleaner shopping flow built around the product itself.</h2>
+        </div>
+
+        <div class="product-spotlight">
+          <article class="product-details reveal">
+            <p class="drop-label">Drop 01</p>
+            <h3>LEGENDS TEE</h3>
+            <p class="product-copy">
+              A heavyweight black tee built around a clean front logo and a full back print that feels raw,
+              motivational, and instantly collectible.
+            </p>
+
+            <div class="price-block" aria-label="Product pricing">
+              <div class="price-row">
+                <span class="price-was">Before 12 BD</span>
+                <span class="price-badge">37.5% Off</span>
+              </div>
+              <div class="price-now-row">
+                <strong class="price-now">7.5 BD</strong>
+                <span class="shipping-note">Shipping: 2.5 BD</span>
+              </div>
+              <p class="availability-note">Currently shipping to Bahrain only.</p>
+            </div>
+
+            <div class="product-specs">
+              <div>
+                <span>Fit</span>
+                <strong>Oversized street silhouette</strong>
+              </div>
+              <div>
+                <span>Palette</span>
+                <strong>Washed black with off-white graphics</strong>
+              </div>
+              <div>
+                <span>Signature</span>
+                <strong>Front chest mark and oversized back artwork</strong>
+              </div>
+            </div>
+
+            <div class="size-picker">
+              <span class="size-picker-label">Select Size</span>
+              <div class="size-options" role="radiogroup" aria-label="LEGENDS TEE size">
+                <button class="size-option active" type="button" data-size="Small" aria-pressed="true">Small</button>
+                <button class="size-option" type="button" data-size="Medium" aria-pressed="false">Medium</button>
+                <button class="size-option" type="button" data-size="Large" aria-pressed="false">Large</button>
+                <button class="size-option" type="button" data-size="XLarge" aria-pressed="false">XLarge</button>
+              </div>
+            </div>
+
+            <div class="product-actions">
+              <button class="button" type="button" id="add-to-cart">Add To Cart</button>
+              <a class="button button-ghost" href="checkout.html">Go To Checkout</a>
+            </div>
+            <p class="product-status" id="product-status" aria-live="polite"></p>
+          </article>
+
+          <div class="product-gallery reveal">
+            <figure class="product-shot product-shot-main">
+              <img class="zoomable-image" src="assets/legends-5.png" alt="LEGENDS TEE back view styled on the street at night">
+            </figure>
+            <figure class="product-shot product-shot-tall">
+              <img class="zoomable-image" src="assets/legends-3.png" alt="LEGENDS TEE front view styled at night">
+            </figure>
+            <figure class="product-shot">
+              <img class="zoomable-image" src="assets/legends-1.png" alt="LEGENDS TEE back graphic on model">
+            </figure>
+            <figure class="product-shot">
+              <img class="zoomable-image" src="assets/legends-6.png" alt="LEGENDS TEE front logo detail on model">
+            </figure>
+          </div>
+        </div>
+
+        <div class="lookbook-grid">
+          <figure class="lookbook-card reveal">
+            <img class="zoomable-image" src="assets/legends-2.png" alt="LEGENDS TEE side angle on male model">
+          </figure>
+          <figure class="lookbook-card reveal">
+            <img class="zoomable-image" src="assets/legends-4.png" alt="LEGENDS TEE back view on female model">
+          </figure>
+          <figure class="lookbook-card reveal">
+            <img class="zoomable-image" src="assets/legends-7.png" alt="LEGENDS TEE full body studio shot">
+          </figure>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 3AM Worldwide. Modern clothing with a star-led identity.</p>
+      <div class="footer-links">
+        <a href="cart.html">View Cart</a>
+        <a href="index.html">Back to home</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="lightbox" id="image-lightbox" hidden>
+    <button class="lightbox-close" type="button" id="lightbox-close" aria-label="Close image">X</button>
+    <div class="lightbox-controls">
+      <button class="lightbox-control" type="button" id="lightbox-zoom-out" aria-label="Zoom out">-</button>
+      <button class="lightbox-control" type="button" id="lightbox-zoom-in" aria-label="Zoom in">+</button>
+    </div>
+    <div class="lightbox-stage">
+      <img id="lightbox-image" src="" alt="">
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

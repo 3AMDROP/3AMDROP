@@ -6,7 +6,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
-    "resend": "^4.0.0",
     "stripe": "^22.1.1"
   }
 }

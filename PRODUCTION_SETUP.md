@@ -1,12 +1,12 @@
 # Production Setup
 
-This project is wired for a production auth, email verification, welcome email, and receipt flow using Vercel, Supabase Auth, Resend, and Stripe.
+This project is wired for a production auth, email verification, welcome email, and receipt flow using Vercel, Supabase Auth, Brevo, and Stripe.
 
 ## What You Need
 
 1. A Supabase project
-2. A Resend account
-3. A verified sending domain in Resend such as `hello@yourbrand.com` when you are ready for branded sending
+2. A Brevo account
+3. A verified sender email or domain in Brevo such as `hello@yourbrand.com` when you are ready for branded sending
 4. A Vercel project for deployment
 5. A Stripe account in a supported country such as the UAE
 
@@ -18,8 +18,8 @@ Add these in Vercel project settings:
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
+BREVO_API_KEY=
+BREVO_FROM_EMAIL=
 PUBLIC_APP_NAME=3AM Worldwide
 STRIPE_SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
@@ -35,11 +35,11 @@ ADMIN_EMAILS=
 - The register endpoint now creates accounts in a verification-required state.
 - The website expects a 6-digit email verification code as the main flow, and also supports the link fallback if Supabase still sends a `token_hash` link.
 
-## Resend Notes
+## Brevo Notes
 
-- Verify your sending domain before going live.
-- `RESEND_FROM_EMAIL` should be something like `3AM Worldwide <hello@yourdomain.com>`.
-- If `RESEND_API_KEY` or `RESEND_FROM_EMAIL` is missing, the auth and order flows still work, but welcome/receipt/admin emails will be skipped gracefully.
+- Verify your sender email or sending domain before going live.
+- `BREVO_FROM_EMAIL` should be something like `3AM Worldwide <hello@yourdomain.com>`.
+- If `BREVO_API_KEY` or `BREVO_FROM_EMAIL` is missing, the auth and order flows still work, but welcome/receipt/admin emails will be skipped gracefully.
 
 ## Deploy
 
@@ -84,7 +84,7 @@ Stripe's docs show:
 - Email verification step before login
 - Real login via Supabase Auth
 - Persistent session restore through the backend
-- Welcome email sending through Resend after verification
+- Welcome email sending through Brevo after verification
 - Hosted card checkout with Stripe
 - Real order records stored in Supabase
 - Authenticated order list and order detail endpoints

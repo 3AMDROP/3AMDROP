@@ -1,4 +1,4 @@
-const { createOptionalResendClient, createResendClient, getAppName, getFromEmail } = require("./clients");
+const { createOptionalBrevoClient, getAppName, getFromEmail } = require("./clients");
 
 function getAdminRecipients() {
   return String(process.env.ADMIN_EMAILS || "")
@@ -8,16 +8,16 @@ function getAdminRecipients() {
 }
 
 async function sendWelcomeEmail({ email, fullName }) {
-  const resend = createOptionalResendClient();
+  const brevo = createOptionalBrevoClient();
   const appName = getAppName();
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = process.env.BREVO_FROM_EMAIL;
   const greetingName = fullName || "there";
 
-  if (!resend || !from) {
+  if (!brevo || !from) {
     return { skipped: true };
   }
 
-  return resend.emails.send({
+  return brevo.sendEmail({
     from,
     to: [email],
     subject: `Welcome to ${appName}`,
@@ -37,10 +37,10 @@ async function sendWelcomeEmail({ email, fullName }) {
 }
 
 async function sendCustomerReceiptEmail({ order }) {
-  const resend = createOptionalResendClient();
-  const from = process.env.RESEND_FROM_EMAIL;
+  const brevo = createOptionalBrevoClient();
+  const from = process.env.BREVO_FROM_EMAIL;
 
-  if (!resend || !from || !order?.customerEmail) {
+  if (!brevo || !from || !order?.customerEmail) {
     return { skipped: true };
   }
 
@@ -49,7 +49,7 @@ async function sendCustomerReceiptEmail({ order }) {
     ? order.cart.map((item) => `<li>${item.name} - ${item.size} x${item.quantity}</li>`).join("")
     : "";
 
-  return resend.emails.send({
+  return brevo.sendEmail({
     from,
     to: [order.customerEmail],
     subject: `Your ${appName} receipt - ${order.id}`,
@@ -77,18 +77,18 @@ async function sendNewOrderEmail({ order }) {
     return { skipped: true };
   }
 
-  const resend = createOptionalResendClient();
+  const brevo = createOptionalBrevoClient();
   const appName = getAppName();
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = process.env.BREVO_FROM_EMAIL;
   const cartLines = Array.isArray(order.cart)
     ? order.cart.map((item) => `<li>${item.name} - ${item.size} x${item.quantity}</li>`).join("")
     : "";
 
-  if (!resend || !from) {
+  if (!brevo || !from) {
     return { skipped: true };
   }
 
-  return resend.emails.send({
+  return brevo.sendEmail({
     from,
     to: recipients,
     subject: `New order received - ${order.id}`,

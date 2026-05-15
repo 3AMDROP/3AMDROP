@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | 3AM Worldwide</title>
+  <meta name="description" content="Save delivery details and complete checkout for 3AM Worldwide.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="orb orb-left" aria-hidden="true"></div>
+  <div class="orb orb-right" aria-hidden="true"></div>
+
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="3AM Worldwide home">
+        <img class="brand-logo" src="brand-logo.png" alt="3AM Worldwide logo">
+      </a>
+
+      <div class="topbar-right">
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="product.html">Product</a>
+          <a href="cart.html">Cart</a>
+          <a href="account.html">Account</a>
+          <a href="checkout.html">Checkout</a>
+        </nav>
+
+        <div class="account-actions">
+          <a class="button button-ghost auth-trigger" id="header-login" href="account.html" data-auth-target="login">Log In</a>
+          <a class="button auth-trigger" id="header-register" href="account.html" data-auth-target="register">Register</a>
+          <span class="account-pill" id="account-pill">Guest</span>
+          <a class="cart-link" href="cart.html" aria-label="View cart">
+            Cart
+            <span class="cart-count" id="cart-count">0</span>
+          </a>
+        </div>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section commerce-section">
+        <div class="order-panel reveal" id="order-product">
+          <div class="order-copy">
+            <p class="eyebrow">Delivery Details</p>
+            <h3>Save delivery details before payment.</h3>
+            <p>
+              Fill in your delivery details below first. Shipping is <strong>2.5 BD</strong> and we currently ship
+              to <strong>Bahrain only</strong>. Your order is only created after you continue through payment.
+            </p>
+            <div class="order-summary">
+              <span>Product: 7.5 BD</span>
+              <span>Shipping: 2.5 BD</span>
+              <strong>Total: 10 BD</strong>
+            </div>
+          </div>
+
+          <form class="order-form" id="order-form">
+            <label>
+              Full Name
+              <input type="text" name="customerName" placeholder="Your full name" inputmode="text" autocomplete="name" pattern="[A-Za-z ]+" title="Name should contain letters only." required>
+            </label>
+            <label>
+              Phone Number
+              <input type="tel" name="phone" placeholder="Your phone number" inputmode="numeric" autocomplete="tel" pattern="[0-9]+" title="Phone number should contain numbers only." required>
+            </label>
+            <label>
+              Area / Location
+              <input type="text" name="location" placeholder="Your area in Bahrain" required>
+            </label>
+            <label>
+              Size
+              <select name="size" required>
+                <option value="">Select size</option>
+                <option>Small</option>
+                <option>Medium</option>
+                <option>Large</option>
+                <option>XLarge</option>
+              </select>
+            </label>
+            <label class="full-width">
+              Full Address
+              <textarea name="address" rows="4" placeholder="Building, road, block, and delivery details" required></textarea>
+            </label>
+            <button class="button" type="submit">Save Delivery Details</button>
+            <p class="form-status" id="order-status" aria-live="polite"></p>
+            <a class="inline-payment-link" id="payment-link" href="#checkout" hidden>Continue to Payment</a>
+          </form>
+        </div>
+
+        <div class="checkout-panel reveal" id="checkout" hidden>
+          <div class="panel-heading">
+            <p class="eyebrow">Payment</p>
+            <h2>Choose how you want to pay for your order.</h2>
+          </div>
+          <p class="checkout-note">
+            Select a payment method below. Cash on delivery stays on this site. Card checkout opens a secure hosted payment page.
+          </p>
+          <p class="delivery-status" id="delivery-status">
+            Save delivery details first so checkout can create the order correctly.
+          </p>
+
+          <form class="checkout-form" id="checkout-form">
+            <div class="payment-methods" role="radiogroup" aria-label="Payment method">
+              <button class="payment-method active" type="button" data-payment-method="cod" aria-pressed="true">
+                Cash on Delivery
+              </button>
+              <button class="payment-method" type="button" data-payment-method="card" aria-pressed="false">
+                Pay with Card
+              </button>
+            </div>
+
+            <div class="checkout-grid">
+              <label>
+                Order Name
+                <input type="text" name="checkoutName" placeholder="Name on the order" inputmode="text" autocomplete="name" pattern="[A-Za-z ]+" title="Name should contain letters only." required>
+              </label>
+              <label>
+                Phone Number
+                <input type="tel" name="checkoutPhone" placeholder="Phone number" inputmode="numeric" autocomplete="tel" pattern="[0-9]+" title="Phone number should contain numbers only." required>
+              </label>
+            </div>
+
+            <div class="card-fields" id="card-fields" hidden>
+              <div class="secure-payment-note">
+                <p>Card details are collected securely on the hosted checkout page after you continue.</p>
+                <span>We do not store raw card numbers on this website.</span>
+              </div>
+            </div>
+
+            <div class="checkout-summary">
+              <span>Product Total: <strong id="checkout-product-total">0 BD</strong></span>
+              <span>Shipping: <strong>2.5 BD</strong></span>
+              <strong>Payable Total: <span id="checkout-total">0 BD</span></strong>
+            </div>
+
+            <button class="button" type="submit">Confirm Payment</button>
+            <p class="form-status" id="checkout-status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 3AM Worldwide. Modern clothing with a star-led identity.</p>
+      <div class="footer-links">
+        <a href="cart.html">View Cart</a>
+        <a href="index.html">Back to home</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
