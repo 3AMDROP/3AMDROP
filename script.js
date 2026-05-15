@@ -4,7 +4,6 @@ const contactForm = document.getElementById("contact-form");
 const formStatus = document.getElementById("form-status");
 const orderForm = document.getElementById("order-form");
 const orderStatus = document.getElementById("order-status");
-const paymentLink = document.getElementById("payment-link");
 const revealItems = document.querySelectorAll(".reveal");
 const sizeOptions = document.querySelectorAll(".size-option");
 const addToCartButton = document.getElementById("add-to-cart");
@@ -388,13 +387,12 @@ const renderCheckoutTotals = () => {
 const renderDeliveryState = () => {
   const delivery = getDelivery();
 
-  if (!deliveryStatus || !paymentLink) {
+  if (!deliveryStatus) {
     return;
   }
 
   if (!delivery) {
     deliveryStatus.textContent = "Save delivery details first so checkout can create the order correctly.";
-    paymentLink.hidden = true;
     if (checkoutForm?.closest(".checkout-panel")) {
       checkoutForm.closest(".checkout-panel").hidden = true;
     }
@@ -402,7 +400,6 @@ const renderDeliveryState = () => {
   }
 
   deliveryStatus.textContent = `Delivery saved for ${delivery.customerName} in ${delivery.location}. Bahrain shipping fee: 2.5 BD.`;
-  paymentLink.hidden = false;
   if (checkoutForm?.closest(".checkout-panel")) {
     checkoutForm.closest(".checkout-panel").hidden = false;
   }
