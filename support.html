@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cart | 3AM Worldwide</title>
-  <meta name="description" content="Review your cart before checkout at 3AM Worldwide.">
+  <title>Support | 3AM Worldwide</title>
+  <meta name="description" content="Get customer support for your 3AM Worldwide order.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
@@ -27,6 +27,9 @@
           <a href="product.html">Product</a>
           <a href="account.html">Account</a>
           <a href="checkout.html">Checkout</a>
+          <a href="support.html">Support</a>
+          <a href="index.html#refund-policy">Refunds</a>
+          <a href="index.html#contact">Contact</a>
         </nav>
 
         <div class="account-actions">
@@ -47,23 +50,36 @@
     </header>
 
     <main>
-      <section class="section commerce-section">
-        <div class="cart-panel reveal" id="cart">
-          <div class="panel-heading">
-            <p class="eyebrow">Cart</p>
-            <h2>Your selected pieces stay here until you move to checkout.</h2>
-          </div>
-          <p class="cart-empty" id="cart-empty">Your cart is empty right now.</p>
-          <div class="cart-items" id="cart-items" aria-live="polite"></div>
-          <div class="cart-summary" id="cart-summary">
-            <span>Subtotal: <strong id="cart-subtotal">0 BD</strong></span>
-            <span>Shipping: <strong>2.5 BD</strong></span>
-            <strong>Total: <span id="cart-total">0 BD</span></strong>
-          </div>
-          <div class="product-actions">
-            <a class="button" href="checkout.html">Continue to Checkout</a>
-            <a class="button button-ghost" href="product.html">Add More</a>
-          </div>
+      <section class="section policy-section">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Customer Support</p>
+          <h2>Need help with your order, delivery, or item issue?</h2>
+        </div>
+
+        <div class="policy-grid">
+          <article class="policy-card reveal">
+            <h3>What We Can Help With</h3>
+            <p>
+              Contact us if you received the wrong item, your order arrived damaged, delivery is delayed, or you need help with any order-related issue.
+            </p>
+          </article>
+          <article class="policy-card reveal">
+            <h3>Best Contact Method</h3>
+            <p>
+              The fastest way to reach us is through WhatsApp so we can reply directly and help you sort the issue quickly.
+            </p>
+          </article>
+        </div>
+
+        <div class="policy-note reveal">
+          <p>
+            When you message us, include your order number, full name, and a short description of the issue so we can help faster.
+          </p>
+        </div>
+
+        <div class="product-actions reveal">
+          <a class="button" href="https://wa.me/97339688606?text=Hi%203AM%20Worldwide,%20I%20need%20help%20with%20my%20order." target="_blank" rel="noreferrer">Open WhatsApp Support</a>
+          <a class="button button-ghost" href="index.html">Back to Home</a>
         </div>
       </section>
     </main>
@@ -71,7 +87,8 @@
     <footer class="footer">
       <p>© 2026 3AM Worldwide. Modern clothing with a star-led identity.</p>
       <div class="footer-links">
-        <a href="checkout.html">Checkout</a>
+        <a href="support.html">Support</a>
+        <a href="index.html#refund-policy">Refund Policy</a>
         <a href="index.html">Back to home</a>
       </div>
     </footer>
