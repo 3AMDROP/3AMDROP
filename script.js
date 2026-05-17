@@ -71,6 +71,12 @@ const navigateTo = (href) => {
   window.location.href = href;
 };
 
+const redirectAfterAuthSuccess = () => {
+  if (window.location.pathname.endsWith("/account.html") || window.location.pathname.endsWith("/account")) {
+    navigateTo("index.html");
+  }
+};
+
 const sanitizeNameInput = (value) => String(value || "").replace(/[^A-Za-z ]+/g, "").replace(/\s{2,}/g, " ").trimStart();
 const sanitizePhoneInput = (value) => String(value || "").replace(/\D+/g, "");
 
@@ -833,6 +839,7 @@ registerForm?.addEventListener("submit", async (event) => {
       registerForm.reset();
       renderAccountState();
       accountMessage.textContent = `Welcome ${user.fullName || user.email}. Demo account created locally for preview mode.`;
+      redirectAfterAuthSuccess();
       return;
     }
 
@@ -848,6 +855,7 @@ registerForm?.addEventListener("submit", async (event) => {
       registerForm.reset();
       renderAccountState();
       accountMessage.textContent = data.message || `Welcome ${data.user.fullName || data.user.email}.`;
+      redirectAfterAuthSuccess();
       return;
     }
 
@@ -881,6 +889,7 @@ loginForm?.addEventListener("submit", async (event) => {
       loginForm.reset();
       renderAccountState();
       accountMessage.textContent = `Logged in as ${user.fullName || user.email}.`;
+      redirectAfterAuthSuccess();
       return;
     }
 
@@ -895,6 +904,7 @@ loginForm?.addEventListener("submit", async (event) => {
     renderAccountState();
     await loadAdminOrders();
     accountMessage.textContent = `Logged in as ${data.user.fullName || data.user.email}.`;
+    redirectAfterAuthSuccess();
   } catch (error) {
     accountMessage.textContent = error.message;
   }
@@ -928,6 +938,7 @@ verifyForm?.addEventListener("submit", async (event) => {
     accountMessage.textContent = data.welcomeEmailSent
       ? `Email confirmed. Welcome ${data.user.fullName || data.user.email}.`
       : `Email confirmed. Welcome ${data.user.fullName || data.user.email}. Your welcome email could not be sent yet.`;
+    redirectAfterAuthSuccess();
   } catch (error) {
     accountMessage.textContent = error.message;
   }
