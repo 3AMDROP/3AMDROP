@@ -197,6 +197,10 @@ const setAuthView = (target) => {
   });
 
   accountForms.forEach((form) => {
+    if (form.id === "verify-form") {
+      return;
+    }
+
     form.classList.toggle("active", form.id === `${target}-form`);
   });
 };
@@ -233,6 +237,10 @@ const renderAccountState = () => {
 
     if (verificationPanel) {
       verificationPanel.hidden = !isVerifying;
+    }
+
+    if (verifyForm) {
+      verifyForm.classList.toggle("active", isVerifying);
     }
 
     if (accountTabsWrap) {
@@ -291,6 +299,10 @@ const renderAccountState = () => {
 
   if (verificationPanel) {
     verificationPanel.hidden = true;
+  }
+
+  if (verifyForm) {
+    verifyForm.classList.remove("active");
   }
 
   if (accountTabsWrap) {

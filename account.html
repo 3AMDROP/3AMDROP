@@ -62,15 +62,17 @@
             <p class="verification-copy" id="verification-copy">
               Enter the code sent to your email address to activate your account. If you do not see it, check spam or resend it below.
             </p>
+            <div class="verification-actions">
+              <button class="button button-ghost" type="button" id="resend-code-button">Resend Code</button>
+              <button class="button button-ghost" type="button" id="change-email-button">Use Different Email</button>
+              <button class="button button-ghost" type="button" id="verification-logout-button">Log Out</button>
+            </div>
             <form class="account-form verification-form active" id="verify-form">
               <label>
                 Verification Code
                 <input type="text" name="token" inputmode="numeric" placeholder="Enter the email code" required>
               </label>
               <button class="button" type="submit">Confirm Email</button>
-              <button class="button button-ghost" type="button" id="resend-code-button">Resend Code</button>
-              <button class="button button-ghost" type="button" id="change-email-button">Use Different Email</button>
-              <button class="button button-ghost" type="button" id="verification-logout-button">Log Out</button>
             </form>
           </div>
 
