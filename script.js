@@ -22,6 +22,7 @@ const loginForm = document.getElementById("login-form");
 const verifyForm = document.getElementById("verify-form");
 const resendCodeButton = document.getElementById("resend-code-button");
 const changeEmailButton = document.getElementById("change-email-button");
+const verificationLogoutButton = document.getElementById("verification-logout-button");
 const verificationPanel = document.getElementById("verification-panel");
 const verificationCopy = document.getElementById("verification-copy");
 const accountMessage = document.getElementById("account-message");
@@ -971,6 +972,15 @@ changeEmailButton?.addEventListener("click", () => {
   setAuthView("register");
   renderAccountState();
   accountMessage.textContent = "You can now register again with a different email address.";
+});
+
+verificationLogoutButton?.addEventListener("click", () => {
+  clearAuthState();
+  clearPendingVerificationEmail();
+  verifyForm?.reset();
+  setAuthView("register");
+  renderAccountState();
+  accountMessage.textContent = "You have been logged out. You can register or log in again.";
 });
 
 logoutButton?.addEventListener("click", async () => {
