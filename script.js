@@ -1027,7 +1027,7 @@ checkoutForm?.addEventListener("submit", async (event) => {
     if (document.getElementById("drops")) {
       document.getElementById("drops")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      navigateTo("product.html");
+      navigateTo("legends-tee.html");
     }
     return;
   }
