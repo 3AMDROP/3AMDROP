@@ -20,6 +20,8 @@ const accountForms = document.querySelectorAll(".account-form");
 const registerForm = document.getElementById("register-form");
 const loginForm = document.getElementById("login-form");
 const verifyForm = document.getElementById("verify-form");
+const resendCodeButton = document.getElementById("resend-code-button");
+const changeEmailButton = document.getElementById("change-email-button");
 const verificationPanel = document.getElementById("verification-panel");
 const verificationCopy = document.getElementById("verification-copy");
 const accountMessage = document.getElementById("account-message");
@@ -57,6 +59,7 @@ const PENDING_VERIFICATION_EMAIL_STORAGE_KEY = "threeam-pending-verification-ema
 const DELIVERY_STORAGE_KEY = "threeam-delivery";
 const PRODUCT_PRICE = 7.5;
 const SHIPPING_PRICE = 2.5;
+const TAX_RATE = 0.1;
 
 let selectedSize = "Small";
 let lightboxScale = 1;
@@ -373,10 +376,17 @@ const loadAdminOrders = async () => {
 const renderCheckoutTotals = () => {
   const cart = getCart();
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = cart.length ? subtotal + SHIPPING_PRICE : 0;
+  const tax = cart.length ? subtotal * TAX_RATE : 0;
+  const total = cart.length ? subtotal + SHIPPING_PRICE + tax : 0;
 
   if (checkoutProductTotal) {
     checkoutProductTotal.textContent = `${subtotal.toFixed(1)} BD`;
+  }
+
+  const checkoutTax = document.getElementById("checkout-tax");
+
+  if (checkoutTax) {
+    checkoutTax.textContent = `${tax.toFixed(1)} BD`;
   }
 
   if (checkoutTotal) {
@@ -419,7 +429,8 @@ const renderDeliveryState = () => {
 const renderCart = () => {
   const cart = getCart();
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = cart.length ? subtotal + SHIPPING_PRICE : 0;
+  const tax = cart.length ? subtotal * TAX_RATE : 0;
+  const total = cart.length ? subtotal + SHIPPING_PRICE + tax : 0;
 
   if (cartCount) {
     cartCount.textContent = String(cart.reduce((sum, item) => sum + item.quantity, 0));
@@ -431,6 +442,10 @@ const renderCart = () => {
   }
 
   cartSubtotal.textContent = `${subtotal.toFixed(1)} BD`;
+  const cartTax = document.getElementById("cart-tax");
+  if (cartTax) {
+    cartTax.textContent = `${tax.toFixed(1)} BD`;
+  }
   cartTotal.textContent = `${total.toFixed(1)} BD`;
   cartItems.innerHTML = "";
 
@@ -916,6 +931,35 @@ verifyForm?.addEventListener("submit", async (event) => {
   } catch (error) {
     accountMessage.textContent = error.message;
   }
+});
+
+resendCodeButton?.addEventListener("click", async () => {
+  const pendingEmail = getPendingVerificationEmail();
+
+  if (!pendingEmail) {
+    accountMessage.textContent = "Start with registration first so we know which email to resend.";
+    return;
+  }
+
+  accountMessage.textContent = "Resending verification code...";
+
+  try {
+    const data = await apiRequest("/api/auth/resend-verification", {
+      email: pendingEmail
+    });
+
+    accountMessage.textContent = data.message || "Verification code resent. Check your inbox and spam folders.";
+  } catch (error) {
+    accountMessage.textContent = error.message || "Could not resend verification code.";
+  }
+});
+
+changeEmailButton?.addEventListener("click", () => {
+  clearPendingVerificationEmail();
+  verifyForm?.reset();
+  setAuthView("register");
+  renderAccountState();
+  accountMessage.textContent = "You can now register again with a different email address.";
 });
 
 logoutButton?.addEventListener("click", async () => {
